@@ -110,11 +110,11 @@ function getStatusText(color) {
   return color == "nodata"
     ? "No Data Available"
     : color == "success"
-    ? "Fully Operational"
+    ? "正常"
     : color == "failure"
-    ? "Major Outage"
+    ? "故障"
     : color == "partial"
-    ? "Partial Outage"
+    ? "警告"
     : "Unknown";
 }
 
@@ -122,11 +122,11 @@ function getStatusDescriptiveText(color) {
   return color == "nodata"
     ? "No Data Available: Health check was not performed."
     : color == "success"
-    ? "No downtime recorded on this day."
+    ? "本日無停機記錄"
     : color == "failure"
-    ? "Major outages recorded on this day."
+    ? "本日停機記錄"
     : color == "partial"
-    ? "Partial outages recorded on this day."
+    ? "本日部分停機記錄"
     : "Unknown";
 }
 

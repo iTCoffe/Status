@@ -1,22 +1,105 @@
-name: Service Status Monitor
+        <!-- GitHub Actions 配置区域 -->
+        <div class="actions-config">
+            <div class="actions-title">GitHub Actions 监控配置</div>
+            <pre>
+<span class="keyword">name</span>: Service Status Monitor
 
-on:
-  schedule:
-    - cron: "30 * * * *"
-  workflow_dispatch:
+<span class="comment"># 控制何时运行操作</span>
+<span class="keyword">on</span>:
+  <span class="keyword">schedule</span>:
+    <span class="comment"># 每小时运行一次</span>
+    - <span class="keyword">cron</span>: <span class="string">"30 * * * *"</span>
 
-jobs:
-  health_check:
-    runs-on: ubuntu-latest
-    name: 服务健康检查
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v3
+  <span class="comment"># 允许手动触发</span>
+  <span class="keyword">workflow_dispatch</span>:
+
+<span class="keyword">jobs</span>:
+  <span class="keyword">health_check_job</span>:
+    <span class="keyword">runs-on</span>: <span class="string">ubuntu-latest</span>
+    <span class="keyword">name</span>: <span class="string">服务健康检查</span>
+    <span class="keyword">steps</span>:
+      - <span class="keyword">name</span>: <span class="string">检出代码</span>
+        <span class="keyword">uses</span>: <span class="string">actions/checkout@v3</span>
         
-      - name: 执行健康检查
-        run: |
-          chmod +x ./health-check.sh
-          ./health-check.sh
+      - <span class="keyword">name</span>: <span class="string">运行健康检查</span>
+        <span class="keyword">run</span>: |<span class="string">
+          #!/bin/bash
+          commit=true
+          origin=$(git remote get-url origin)
           
-      - name: 查看状态报告
-        run: cat status.json
+          # 仅在非原始仓库时提交
+          if [[ $origin == *statsig-io/statuspage* ]]; then
+            commit=false
+          fi
+          
+          # 服务配置
+          urlsConfig="./urls.cfg"
+          echo "Reading $urlsConfig"
+          KEYSARRAY=()
+          URLSARRAY=()
+          
+          while read -r line; do
+            echo "  $line"
+            IFS='=' read -ra TOKENS <<< "$line"
+            KEYSARRAY+=("${TOKENS[0]}")
+            URLSARRAY+=("${TOKENS[1]}")
+          done < "$urlsConfig"
+          
+          # 创建日志目录
+          mkdir -p logs
+          
+          # 检查每个服务
+          for (( index=0; index < ${#KEYSARRAY[@]}; index++)); do
+            key="${KEYSARRAY[index]}"
+            url="${URLSARRAY[index]}"
+            echo "Checking $key=$url"
+            
+            result="failed"
+            for i in {1..4}; do
+              response=$(curl -L -I -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --max-time 10 "$url")
+              if [ "$response" -eq 200 ] || [ "$response" -eq 202 ] || [ "$response" -eq 301 ] || [ "$response" -eq 302 ] || [ "$response" -eq 307 ]; then
+                result="success"
+                break
+              else
+                sleep 5
+              fi
+            done
+            
+            dateTime=$(date +'%Y-%m-%d %H:%M')
+            if [[ $commit == true ]]; then
+              echo "$dateTime, $result" >> "logs/${key}_report.log"
+              # 保留最新2000条记录
+              echo "$(tail -2000 logs/${key}_report.log)" > "logs/${key}_report.log"
+            else
+              echo "    $dateTime, $result"
+            fi
+          done
+          
+          # 生成状态文件
+          echo "{" > status.json
+          echo '  "metadata": {' >> status.json
+          echo '    "generatedAt": "'$(date +'%Y-%m-%dT%H:%M:%S%z')'",' >> status.json
+          echo '    "totalServices": '${#KEYSARRAY[@]}',' >> status.json
+          echo '    "commitEnabled": '$commit',' >> status.json
+          echo '    "version": "1.1"' >> status.json
+          echo '  }' >> status.json
+          echo "}" >> status.json
+          </span>
+          
+      - <span class="keyword">name</span>: <span class="string">提交更新</span>
+        <span class="keyword">run</span>: |<span class="string">
+          if [[ $commit == true ]]; then
+            git config user.name "GitHub Action"
+            git config user.email "action@github.com"
+            git add status.json logs/
+            git commit -m "[自动更新] 服务健康检查报告"
+            git push
+          fi
+          </span>
+</pre>
+            <div class="config-block">
+                <div class="comment"># 创建 urls.cfg 配置文件，格式为: 服务名称=URL</div>
+                <div class="comment"># 例如: 5i計劃通行=https://vlink.cc/5iClub</div>
+                <div class="comment"># 在仓库中创建 logs 目录存储历史日志</div>
+            </div>
+        </div>

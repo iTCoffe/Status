@@ -1,140 +1,141 @@
-<!DOCTYPE html>
 <html>
-<head>
-  <title>5️⃣i計畫通行·服務監控</title>
-  <link rel="icon" href="https://iTCoffe.Github.io/Status/logo.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="index.css" />
-  <style>
-    /* 添加主题切换动画效果 */
-    .theme-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 8px 12px;
-      margin: 0 2px;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-      font-size: 20px;
-      line-height: 1;
-    }
-    
-    .theme-btn:hover {
-      background-color: rgba(0,0,0,0.1);
-      transform: scale(1.1);
-    }
-    
-    .theme-btn.active {
-      background-color: rgba(0,0,0,0.2);
-    }
-    
-    .theme-switcher {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      display: flex;
-      background: rgba(255,255,255,0.8);
-      border-radius: 24px;
-      padding: 4px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      z-index: 1000;
-    }
-    
-    .dark-theme .theme-switcher {
-      background: rgba(0,0,0,0.8);
-    }
-  </style>
-  <script src="index.js"></script>
-</head>
-<body>
-  <!-- 主题切换器 -->
-  <div class="theme-switcher">
-    <button class="theme-btn active" data-theme="light" title="浅色模式">☀️</button>
-    <button class="theme-btn" data-theme="dark" title="深色模式">🌙</button>
-  </div>
+  <head>
+    <title>5️⃣i計畫通行·服務監控</title>
+    <link rel="icon" href="https://iTCoffe.Github.io/Status/logo.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="index.css" />
+    <style>
+      /* 新增主题切换按钮样式 */
+      .theme-switcher {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        background: rgba(255,255,255,0.8);
+        border-radius: 24px;
+        padding: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        z-index: 1000;
+      }
+      
+      .dark-theme .theme-switcher {
+        background: rgba(0,0,0,0.8);
+      }
+      
+      .theme-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px 12px;
+        margin: 0 2px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        font-size: 20px;
+        line-height: 1;
+      }
+      
+      .theme-btn:hover {
+        background-color: rgba(0,0,0,0.1);
+        transform: scale(1.1);
+      }
+      
+      .theme-btn.active {
+        background-color: rgba(0,0,0,0.2);
+      }
+    </style>
+    <script src="index.js"></script>
+  </head>
+  <body>
+    <!-- 新增主题切换按钮 -->
+    <div class="theme-switcher">
+      <button class="theme-btn active" data-theme="light" title="浅色模式">☀️</button>
+      <button class="theme-btn" data-theme="dark" title="深色模式">🌙</button>
+    </div>
 
-  <!-- 其他内容 -->
-  <div id="reports" class="reportContainer"></div>
-  <div id="tooltip" class="tooltip" style="opacity: 0">
-    <div id="tooltipArrow" class="tooltipArrow"></div>
-    <div id="tooltipDateTime" class="tooltipDateTime"></div>
-    <div id="tooltipStatus" class="tooltipStatus"></div>
-    <hr />
-    <div id="tooltipDescription" class="tooltipDescription"></div>
-  </div>
-  <div id="templates" style="display: none">
-    <div
-      id="statusSquareTemplate"
-      class="statusSquare $color"
-      data-status="$color"
-    ></div>
-    <div id="statusLineTemplate" class="statusLine"></div>
-    <div
-      id="statusStreamContainerTemplate"
-      class="statusStreamContainer"
-    ></div>
-    <div id="statusContainerTemplate" class="statusContainer">
-      <div class="statusHeader">
-        <h6 class="statusTitle">$title&nbsp;</h6>
-        <div class="$color statusHeadline">$status</div>
+    <div class="pageContainer">
+      <div class="headline">
+        <img src="logo.png" alt="Logo" width="200px" />
+        <span> System Status </span>
       </div>
-      <div class="statusSubtitle">
-        <div class="sectionUrl"><a href="$url">$url</a></div>
-        <div class="statusUptime">$upTime in the last 30 days</div>
+      <div id="reports" class="reportContainer"></div>
+      <div id="tooltip" class="tooltip" style="opacity: 0">
+        <div id="tooltipArrow" class="tooltipArrow"></div>
+        <div id="tooltipDateTime" class="tooltipDateTime"></div>
+        <div id="tooltipStatus" class="tooltipStatus"></div>
+        <hr />
+        <div id="tooltipDescription" class="tooltipDescription"></div>
+      </div>
+      <div id="templates" style="display: none">
+        <div
+          id="statusSquareTemplate"
+          class="statusSquare $color"
+          data-status="$color"
+        ></div>
+        <div id="statusLineTemplate" class="statusLine"></div>
+        <div
+          id="statusStreamContainerTemplate"
+          class="statusStreamContainer"
+        ></div>
+        <div id="statusContainerTemplate" class="statusContainer">
+          <div class="statusHeader">
+            <h6 class="statusTitle">$title&nbsp;</h6>
+            <div class="$color statusHeadline">$status</div>
+          </div>
+          <div class="statusSubtitle">
+            <div class="sectionUrl"><a href="$url">$url</a></div>
+            <div class="statusUptime">$upTime in the last 30 days</div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-
-  <footer>
-    Forked from
-    <a href="https://vlink.cc/5iClub"
-      >© 2022-2025 5️⃣i計畫通行·樂玩公社</a
-    >.
-  </footer>
-  
-  <script>
-    // 主题切换功能
-    function setupThemeSwitcher() {
-      const themeBtns = document.querySelectorAll('.theme-btn');
-      const htmlEl = document.documentElement;
-      
-      // 检查本地存储和系统偏好
-      const savedTheme = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      
-      // 确定初始主题
-      const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-      document.body.classList.add(initialTheme === 'dark' ? 'dark-theme' : 'light-theme');
-      
-      // 设置活动按钮状态
-      themeBtns.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.theme === initialTheme);
-      });
-      
-      // 添加按钮点击事件
-      themeBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const selectedTheme = btn.dataset.theme;
-          
-          // 更新body类
-          document.body.classList.remove('light-theme', 'dark-theme');
-          document.body.classList.add(selectedTheme === 'dark' ? 'dark-theme' : 'light-theme');
-          
-          // 更新按钮状态
-          themeBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          
-          // 保存到本地存储
-          localStorage.setItem('theme', selectedTheme);
+    <footer>
+      Forked from
+      <a href="https://vlink.cc/5iClub"
+        >© 2022-2025 5️⃣i計畫通行·樂玩公社</a
+      >.
+    </footer>
+    <script>
+      // 主题切换功能
+      function setupThemeSwitcher() {
+        const themeBtns = document.querySelectorAll('.theme-btn');
+        
+        // 检查本地存储和系统偏好
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // 确定初始主题
+        const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+        document.body.classList.add(initialTheme === 'dark' ? 'dark-theme' : 'light-theme');
+        
+        // 设置活动按钮状态
+        themeBtns.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.theme === initialTheme);
         });
+        
+        // 添加按钮点击事件
+        themeBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const selectedTheme = btn.dataset.theme;
+            
+            // 更新body类
+            document.body.classList.remove('light-theme', 'dark-theme');
+            document.body.classList.add(selectedTheme === 'dark' ? 'dark-theme' : 'light-theme');
+            
+            // 更新按钮状态
+            themeBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // 保存到本地存储
+            localStorage.setItem('theme', selectedTheme);
+          });
+        });
+      }
+      
+      // 初始化
+      document.addEventListener('DOMContentLoaded', () => {
+        setupThemeSwitcher();
+        genAllReports();
       });
-    }
-    
-    // 初始化主题切换器
-    document.addEventListener('DOMContentLoaded', () => {
-      setupThemeSwitcher();
-      genAllReports();
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>

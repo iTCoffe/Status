@@ -3,52 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>5️⃣i計劃通行·服務監控</title>
+    <title>5️⃣i計畫通行·樂玩公社</title>
     <link rel="icon" href="https://itcoffee.github.io/Status/logo.ico" />
     <style>
         :root {
-            --primary: #0e2c53;
-            --primary-light: #2c5282;
-            --secondary: #18447c;
-            --success: #48bb78;
-            --danger: #e53e3e;
-            --warning: #ed8936;
-            --unknown: #a0aec0;
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --secondary: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --unknown: #94a3b8;
             --card-bg: #ffffff;
             --card-shadow: rgba(0, 0, 0, 0.08);
-            --text-dark: #2d3748;
-            --text-light: #f7fafc;
+            --text-dark: #1e293b;
+            --text-light: #f1f5f9;
             --border: #e2e8f0;
-            --bg-body: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            --bg-body: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             --bg-header: linear-gradient(to right, var(--primary), var(--primary-light));
             --footer-border: var(--border);
             --tooltip-bg: #ffffff;
             --tooltip-border: var(--border);
-            --status-stream-title: #4a5568;
+            --status-stream-title: #475569;
             --status-subtitle-bg: #f8fafc;
             --headline-text: var(--text-light);
-            --card-hover: rgba(66, 153, 225, 0.1);
+            --card-hover: rgba(59, 130, 246, 0.1);
         }
         
         /* 暗黑模式变量 */
         .dark-mode {
-            --primary: #63b3ed;
-            --primary-light: #4299e1;
-            --secondary: #2b6cb0;
-            --card-bg: #1a202c;
+            --primary: #60a5fa;
+            --primary-light: #3b82f6;
+            --secondary: #2563eb;
+            --card-bg: #1e293b;
             --card-shadow: rgba(0, 0, 0, 0.3);
             --text-dark: #e2e8f0;
             --text-light: #f0f4f8;
-            --border: #2d3748;
-            --bg-body: linear-gradient(135deg, #0d1117 0%, #1a202c 100%);
-            --bg-header: linear-gradient(to right, #1d3557, #2d3748);
-            --footer-border: #2a3b4d;
-            --tooltip-bg: #2d3748;
-            --tooltip-border: #4a5568;
-            --status-stream-title: #cbd5e0;
-            --status-subtitle-bg: #171923;
+            --border: #334155;
+            --bg-body: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --bg-header: linear-gradient(to right, #1e40af, #1e293b);
+            --footer-border: #334155;
+            --tooltip-bg: #1e293b;
+            --tooltip-border: #475569;
+            --status-stream-title: #cbd5e1;
+            --status-subtitle-bg: #0f172a;
             --headline-text: #e2e8f0;
-            --card-hover: rgba(66, 153, 225, 0.2);
+            --card-hover: rgba(59, 130, 246, 0.2);
         }
         
         * {
@@ -74,7 +74,7 @@
             position: relative;
         }
         
-        /* 页眉样式 - 已移除Logo */
+        /* 标题样式 */
         .headline {
             text-align: center;
             margin-bottom: 30px;
@@ -102,11 +102,11 @@
         }
         
         .headline span {
-            font-size: 2.4rem;
+            font-size: 2.2rem;
             font-weight: 800;
             letter-spacing: 0.5px;
             text-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            background: linear-gradient(to right, #fff, #e0e7ff);
+            background: linear-gradient(to right, #fff, #dbeafe);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             padding: 0 10px;
@@ -140,7 +140,7 @@
         .statusContainer:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-            border-color: rgba(66, 153, 225, 0.4);
+            border-color: rgba(59, 130, 246, 0.4);
             background-color: var(--card-hover);
         }
         
@@ -153,7 +153,7 @@
         }
         
         .statusTitle {
-            font-size: 1.35rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--text-dark);
             margin: 0;
@@ -163,7 +163,7 @@
         }
         
         .statusTitle .emoji {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
         }
         
         .statusHeadline {
@@ -202,7 +202,7 @@
         }
         
         .statusUptime {
-            background: rgba(160, 174, 192, 0.2);
+            background: rgba(100, 116, 139, 0.15);
             height: 10px;
             border-radius: 5px;
             position: relative;
@@ -218,6 +218,7 @@
             color: white;
             font-size: 0.7rem;
             font-weight: bold;
+            z-index: 2;
         }
         
         .progress-bar {
@@ -226,7 +227,7 @@
             left: 0;
             height: 100%;
             border-radius: 5px;
-            background: linear-gradient(90deg, var(--success), #38a169);
+            background: linear-gradient(90deg, var(--success), #059669);
             transition: width 1s ease-in-out;
         }
         
@@ -348,7 +349,7 @@
             color: var(--text-dark);
             border-top: 1px solid var(--footer-border);
             margin-top: 20px;
-            background: rgba(160, 174, 192, 0.1);
+            background: rgba(100, 116, 139, 0.1);
             border-radius: 12px;
         }
         
@@ -423,9 +424,89 @@
             font-weight: 600;
             padding: 3px 8px;
             border-radius: 4px;
-            background: rgba(66, 153, 225, 0.15);
+            background: rgba(59, 130, 246, 0.15);
             color: var(--primary);
             margin-left: 10px;
+        }
+        
+        /* GitHub Actions 配置区域 */
+        .actions-config {
+            background-color: rgba(248, 250, 252, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px auto;
+            max-width: 800px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            line-height: 1.5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .dark-mode .actions-config {
+            background-color: rgba(15, 23, 42, 0.8);
+            border-color: var(--border);
+        }
+        
+        .actions-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .config-block {
+            margin-bottom: 15px;
+        }
+        
+        .comment {
+            color: #6b7280;
+        }
+        
+        .keyword {
+            color: #9333ea;
+        }
+        
+        .string {
+            color: #0891b2;
+        }
+        
+        .number {
+            color: #ea580c;
+        }
+        
+        /* 加载动画 */
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(59, 130, 246, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 最后更新时间 */
+        .last-update {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin: 20px 0 30px;
+            font-style: italic;
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -436,13 +517,22 @@
             <span id="mode-icon">🌙</span>
         </div>
         
-        <!-- 移除了Logo的标题部分 -->
+        <!-- 标题部分 -->
         <div class="headline">
-            <span>計劃通行·服務監控儀表板</span>
+            <span>計畫通行·服務監控儀表板</span>
         </div>
         
-        <div id="reports" class="reportContainer"></div>
+        <!-- 最后更新时间 -->
+        <div id="last-update" class="last-update"></div>
         
+        <!-- 仪表板区域 -->
+        <div id="reports" class="reportContainer">
+            <div class="loader">
+                <div class="spinner"></div>
+            </div>
+        </div>
+        
+        <!-- 工具提示容器 -->
         <div id="tooltip" class="tooltip" style="opacity: 0">
             <div id="tooltipArrow" class="tooltipArrow"></div>
             <div id="tooltipDateTime" class="tooltipDateTime"></div>
@@ -451,6 +541,7 @@
             <div id="tooltipDescription" class="tooltipDescription"></div>
         </div>
         
+        <!-- 页脚 -->
         <footer>
             Forked from <a href="https://vlink.cc/5iClub">© 2022-2025 5️⃣i計畫通行·樂玩公社</a>
         </footer>
@@ -588,6 +679,11 @@
         function genAllReports() {
             const reportContainer = document.getElementById('reports');
             reportContainer.innerHTML = '';
+            
+            // 设置最后更新时间
+            const now = new Date();
+            document.getElementById('last-update').textContent = 
+                `最後更新時間: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
             
             services.forEach(service => {
                 // 创建服务容器
@@ -747,8 +843,16 @@
         
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
-            genAllReports();
-            setupModeToggle();
+            // 设置最后更新时间
+            const now = new Date();
+            document.getElementById('last-update').textContent = 
+                `最後更新時間: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+            
+            // 延迟显示以模拟数据加载
+            setTimeout(() => {
+                genAllReports();
+                setupModeToggle();
+            }, 800);
         });
     </script>
 </body>

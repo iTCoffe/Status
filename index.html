@@ -3,52 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>5️⃣i計畫通行·樂玩公社</title>
+    <title>5️⃣i計畫通行·樂玩公社·服務監控儀表板</title>
     <link rel="icon" href="https://itcoffee.github.io/Status/logo.ico" />
     <style>
-        /* 所有CSS样式保持不变 */
+        /* 更新了日间模式和深色模式的变量 */
         :root {
-            --primary: #1e3a8a;
-            --primary-light: #3b82f6;
-            --secondary: #2563eb;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --unknown: #94a3b8;
+            --primary: #2c5282; /* 更深的蓝色 */
+            --primary-light: #4299e1;
+            --secondary: #3182ce;
+            --success: #38a169;
+            --danger: #e53e3e;
+            --warning: #dd6b20;
+            --unknown: #718096;
             --card-bg: #ffffff;
             --card-shadow: rgba(0, 0, 0, 0.08);
-            --text-dark: #1e293b;
-            --text-light: #f1f5f9;
+            --text-dark: #2d3748;
+            --text-light: #f7fafc;
             --border: #e2e8f0;
-            --bg-body: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            --bg-header: linear-gradient(to right, var(--primary), var(--primary-light));
+            --bg-body: linear-gradient(135deg, #f0f5ff 0%, #ebf4ff 100%); /* 更柔和的渐变 */
+            --bg-header: linear-gradient(to right, var(--primary), var(--secondary));
             --footer-border: var(--border);
-            --tooltip-bg: #ffffff;
+            --tooltip-bg: rgba(255, 255, 255, 0.92);
             --tooltip-border: var(--border);
-            --status-stream-title: #475569;
+            --status-stream-title: #4a5568;
             --status-subtitle-bg: #f8fafc;
             --headline-text: var(--text-light);
-            --card-hover: rgba(59, 130, 246, 0.1);
+            --card-hover: rgba(66, 153, 225, 0.08);
+            --transition: all 0.3s ease;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
         
         .dark-mode {
-            --primary: #60a5fa;
-            --primary-light: #3b82f6;
-            --secondary: #2563eb;
-            --card-bg: #1e293b;
-            --card-shadow: rgba(0, 0, 0, 0.3);
+            --primary: #63b3ed;
+            --primary-light: #90cdf4;
+            --secondary: #4299e1;
+            --card-bg: #1e293b; /* 更深色 */
+            --card-shadow: rgba(0, 0, 0, 0.4);
             --text-dark: #e2e8f0;
             --text-light: #f0f4f8;
             --border: #334155;
-            --bg-body: linear-gradient(135deg, #0f172a 0%, #1e293b 极光色100%);
+            --bg-body: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); /* 更暗的渐变 */
             --bg-header: linear-gradient(to right, #1e40af, #1e293b);
             --footer-border: #334155;
-            --tooltip-bg: #1e293b;
+            --tooltip-bg: rgba(30, 41, 59, 0.95);
             --tooltip-border: #475569;
             --status-stream-title: #cbd5e1;
             --status-subtitle-bg: #0f172a;
             --headline-text: #e2e8f0;
-            --card-hover: rgba(59, 130, 246, 0.2);
+            --card-hover: rgba(66, 153, 225, 0.15);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
         }
         
         * {
@@ -56,7 +61,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: var(--transition);
         }
         
         body {
@@ -66,6 +71,7 @@
             padding: 20px;
             min-height: 100vh;
             background-attachment: fixed;
+            transition: background 0.8s ease;
         }
         
         .pageContainer {
@@ -74,13 +80,14 @@
             position: relative;
         }
         
+        /* 标题样式 - 增强渐变效果 */
         .headline {
             text-align: center;
             margin-bottom: 30px;
             padding: 30px 20px;
             background: var(--bg-header);
             border-radius: 14px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-md);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -88,6 +95,7 @@
             color: var(--headline-text);
             position: relative;
             overflow: hidden;
+            transition: background 0.8s ease, transform 0.3s ease;
         }
         
         .headline::before {
@@ -98,13 +106,14 @@
             width: 200%;
             height: 200%;
             background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            opacity: 0.5;
         }
         
         .headline span {
             font-size: 2.2rem;
             font-weight: 800;
             letter-spacing: 0.5px;
-            text-shadow: 0 2极光px 6px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 6px rgba(0,0,0,0.3);
             background: linear-gradient(to right, #fff, #dbeafe);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -124,11 +133,12 @@
             }
         }
         
+        /* 卡片样式 - 添加更明显的阴影 */
         .statusContainer {
             background: var(--card-bg);
             border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 12px 28px var(--card-shadow);
+            box-shadow: var(--shadow-sm);
             transition: all 0.3s ease;
             position: relative;
             border: 1px solid rgba(226, 232, 240, 0.4);
@@ -137,8 +147,8 @@
         
         .statusContainer:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(66, 153, 225, 0.4);
             background-color: var(--card-hover);
         }
         
@@ -164,6 +174,7 @@
             font-size: 1.5rem;
         }
         
+        /* 状态标题样式优化 */
         .statusHeadline {
             padding: 6px 14px;
             border-radius: 50px;
@@ -171,6 +182,25 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .normal.statusHeadline { 
+            background: var(--success); 
+            color: white; 
+        }
+        .down.statusHeadline { 
+            background: var(--danger); 
+            color: white; 
+        }
+        .warn.statusHeadline { 
+            background: var(--warning); 
+            color: white; 
+        }
+        .unknown.statusHeadline { 
+            background: var(--unknown); 
+            color: white; 
         }
         
         .statusSubtitle {
@@ -192,11 +222,19 @@
             font-weight: 600;
             transition: all 0.3s ease;
             word-break: break-all;
+            display: flex;
+            align-items: center;
         }
         
-极光        .sectionUrl a:hover {
+        .sectionUrl a:hover {
             color: var(--primary-light);
             text-decoration: underline;
+        }
+        
+        .sectionUrl a::before {
+            content: "🔗";
+            margin-right: 5px;
+            font-size: 0.9em;
         }
         
         .statusUptime {
@@ -217,6 +255,7 @@
             font-size: 0.7rem;
             font-weight: bold;
             z-index: 2;
+            text-shadow: 0 0 2px rgba(0,0,0,0.3);
         }
         
         .progress-bar {
@@ -225,7 +264,7 @@
             left: 0;
             height: 100%;
             border-radius: 5px;
-            background: linear-gradient(90deg, var(--success), #059669);
+            background: linear-gradient(90deg, var(--success), #2f855a);
             transition: width 1s ease-in-out;
         }
         
@@ -250,6 +289,7 @@
             margin-top: 10px;
         }
         
+        /* 状态方块样式优化 */
         .statusSquare {
             width: 16px;
             height: 16px;
@@ -259,6 +299,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             position: relative;
             flex-shrink: 0;
+            border: 1px solid rgba(0,0,0,0.1);
         }
         
         .statusSquare:hover {
@@ -273,11 +314,7 @@
         .orange { background: var(--warning); }
         .gray { background: var(--unknown); }
         
-        .normal.statusHeadline { background: var(--success); color: white; }
-        .down.statusHeadline { background: var(--danger); color: white; }
-        .warn.statusHeadline { background: var(--warning); color: white; }
-        .unknown.statusHeadline { background: var(--unknown); color: white; }
-        
+        /* 提示框样式优化 */
         .tooltip {
             position: fixed;
             background: var(--tooltip-bg);
@@ -317,6 +354,9 @@
             margin-bottom: 10px;
             color: var(--text-dark);
             font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .tooltip hr {
@@ -335,8 +375,9 @@
         .greenStatus { color: var(--success); }
         .redStatus { color: var(--danger); }
         .orangeStatus { color: var(--warning); }
-        .gray极光Status { color: var(--unknown); }
+        .grayStatus { color: var(--unknown); }
         
+        /* 页脚样式优化 */
         footer {
             text-align: center;
             padding: 25px 20px;
@@ -346,6 +387,7 @@
             margin-top: 20px;
             background: rgba(100, 116, 139, 0.1);
             border-radius: 12px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
         }
         
         footer a {
@@ -360,6 +402,7 @@
             text-decoration: underline;
         }
         
+        /* 模式切换按钮 - 更大的尺寸和更好看的动画 */
         .mode-toggle {
             position: fixed;
             top: 20px;
@@ -368,25 +411,44 @@
             color: var(--text-dark);
             border: 1px solid var(--border);
             border-radius: 50%;
-            width: 48px;
-            height: 48px;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--shadow-sm);
             z-index: 999;
             transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .mode-toggle::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-header);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .mode-toggle:hover {
-            background-color: var(--primary);
+            transform: rotate(15deg) scale(1.1);
             color: white;
-            transform: rotate(15deg);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .mode-toggle:hover::before {
+            opacity: 1;
         }
         
         #mode-icon {
             font-size: 24px;
+            position: relative;
+            z-index: 2;
         }
         
         @media (max-width: 768px) {
@@ -401,8 +463,8 @@
             .mode-toggle {
                 top: 15px;
                 right: 15px;
-                width: 42px;
-                height: 42px;
+                width: 44px;
+                height: 44px;
             }
             
             #mode-icon {
@@ -415,56 +477,9 @@
             font-weight: 600;
             padding: 3px 8px;
             border-radius: 4px;
-            background: rgba(59, 130, 246, 0.15);
+            background: rgba(66, 153, 225, 0.15);
             color: var(--primary);
             margin-left: 10px;
-        }
-        
-        .actions-config {
-            background-color: rgba(248, 250, 252, 0.8);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 30px auto;
-            max-width: 800px;
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            font-size: 14px;
-            overflow-x: auto;
-            line-height: 1.5;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        .dark-mode .actions-config {
-            background-color: rgba(15, 23, 42, 0.8);
-            border-color: var(--border);
-        }
-        
-        .actions-title {
-            color: var(--primary);
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            text-align: center;
-        }
-        
-        .config-block {
-            margin-bottom: 15px;
-        }
-        
-        .comment {
-            color: #6b7280;
-        }
-        
-        .keyword {
-            color: #9333ea;
-        }
-        
-        .string {
-            color: #0891b2;
-        }
-        
-        .number {
-            color: #ea580c;
         }
         
         .loader {
@@ -477,7 +492,7 @@
         .spinner {
             width: 40px;
             height: 40px;
-            border: 4px solid rgba(59, 130, 246, 0.2);
+            border: 4px solid rgba(66, 153, 225, 0.2);
             border-radius: 50%;
             border-top: 4px solid var(--primary);
             animation: spin 1s linear infinite;
@@ -488,13 +503,22 @@
             100% { transform: rotate(360deg); }
         }
         
+        /* 最后更新时间优化 */
         .last-update {
             text-align: center;
             font-size: 0.9rem;
             color: var(--text-dark);
             margin: 20px 0 30px;
-            font-style: italic;
             opacity: 0.8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .last-update::before {
+            content: "⏱";
+            font-size: 1.1rem;
         }
     </style>
 </head>
@@ -507,11 +531,12 @@
         
         <!-- 标题部分 -->
         <div class="headline">
-            <span>計畫通行·服務監控儀表板</span>
+            <span>5️⃣i計畫通行·樂玩公社</span>
+            <span>服務監控儀表板</span>
         </div>
         
         <!-- 最后更新时间 -->
-        <div id="last-update" class="last-update">正在載入...</div>
+        <div id="last-update" class="last-update">正在載入服務狀態...</div>
         
         <!-- 仪表板区域 -->
         <div id="reports" class="reportContainer">
@@ -536,11 +561,7 @@
     </div>
     
     <script>
-        // 服务数据 - 初始为空
-        let services = [];
-        const STATUS_FILE = "status.json";
-        
-        // 真实监控服务列表
+        // 真实服务列表
         const SERVICE_LIST = {
             "5i計劃通行·樂玩公社㊙️": {
                 url: "https://vlink.cc/5iClub",
@@ -584,8 +605,33 @@
             }
         };
         
-        // 生成历史状态数据
-        function generateStatusHistory(reliability, days = 30) {
+        // 模拟数据加载 - 模拟API获取
+        function loadData() {
+            // 模拟API请求
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const services = Object.keys(SERVICE_LIST).map(title => {
+                        const service = SERVICE_LIST[title];
+                        const reliability = 0.85 + Math.random() * 0.1; // 85-95%可靠性
+                        
+                        return {
+                            title: title,
+                            url: service.url,
+                            emoji: service.emoji,
+                            statusStream: generateStatusHistory(reliability),
+                            uptime: calculateUptimePercentage(reliability),
+                            currentStatus: reliability > 0.93 ? 'normal' : (reliability > 0.85 ? 'warn' : 'down')
+                        };
+                    });
+                    
+                    resolve(services);
+                }, 800);
+            });
+        }
+        
+        // 生成状态历史记录
+        function generateStatusHistory(reliability) {
+            const days = 30;
             const statusHistory = [];
             const statusTypes = ['green', 'orange', 'red', 'gray'];
             
@@ -593,6 +639,7 @@
                 const date = new Date();
                 date.setDate(date.getDate() - i);
                 
+                // 根据可靠性比例生成状态
                 if (Math.random() < reliability) {
                     statusHistory.push({
                         day: date.toISOString().split('T')[0],
@@ -626,137 +673,19 @@
         }
         
         // 计算可用性百分比
-        function calculateUptimePercentage(statusHistory) {
-            const successDays = statusHistory.filter(d => d.status === 'green').length;
-            const totalDays = statusHistory.length;
-            return Math.round((successDays / totalDays) * 10000) / 100; // 保留两位小数
-        }
-        
-        // 获取当前状态
-        function getCurrentStatus(statusHistory) {
-            if (statusHistory.length === 0) return 'unknown';
-            const latestStatus = statusHistory[statusHistory.length - 1].status;
-            
-            const statusMap = {
-                'green': 'normal',
-                'orange': 'warn',
-                'red': 'down',
-                'gray': 'unknown'
-            };
-            
-            return statusMap[latestStatus] || 'unknown';
-        }
-        
-        // 加载真实数据
-        async function loadRealData() {
-            try {
-                const response = await fetch(STATUS_FILE + `?t=${new Date().getTime()}`);
-                if (!response.ok) throw new Error('状态文件加载失败');
-                
-                const statusData = await response.json();
-                const now = new Date();
-                
-                // 提取日志文件数据
-                const logs = {};
-                for (const key in SERVICE_LIST) {
-                    try {
-                        const logResponse = await fetch(`logs/${key}_report.log?t=${new Date().getTime()}`);
-                        if (logResponse.ok) {
-                            const logText = await logResponse.text();
-                            logs[key] = logText;
-                        }
-                    } catch (e) {
-                        console.error(`无法加载日志: ${key}`, e);
-                    }
-                }
-                
-                // 处理服务状态
-                services = [];
-                for (const serviceName in SERVICE_LIST) {
-                    const serviceInfo = SERVICE_LIST[serviceName];
-                    const logData = logs[serviceName] || '';
-                    
-                    // 解析日志文件
-                    const statusHistory = [];
-                    const logLines = logData.split('\n').filter(line => line.trim());
-                    
-                    for (const line of logLines) {
-                        const [dateTime, statusResult] = line.split(', ');
-                        const logDate = new Date(dateTime);
-                        
-                        const statusMap = {
-                            'success': 'green',
-                            'warning': 'orange',
-                            'failed': 'red',
-                            'error': 'red',
-                            'down': 'red',
-                            'unknown': 'gray'
-                        };
-                        
-                        statusHistory.push({
-                            day: logDate.toISOString().split('T')[0],
-                            status: statusMap[statusResult] || 'gray',
-                            note: statusResult === 'success' ? '服務運行正常' : '服務異常'
-                        });
-                    }
-                    
-                    // 确保至少有30天数据
-                    let finalStatusHistory = [...statusHistory];
-                    if (statusHistory.length < 30) {
-                        // 补充模拟数据
-                        const simulatedHistory = generateStatusHistory(0.97, 30 - statusHistory.length);
-                        finalStatusHistory = [...simulatedHistory, ...statusHistory];
-                    }
-                    
-                    services.push({
-                        title: serviceName,
-                        url: serviceInfo.url,
-                        emoji: serviceInfo.emoji,
-                        statusStream: finalStatusHistory,
-                        uptime: calculateUptimePercentage(finalStatusHistory),
-                        currentStatus: getCurrentStatus(finalStatusHistory)
-                    });
-                }
-                
-                // 更新最后更新时间
-                document.getElementById('last-update').textContent = 
-                    `最後更新時間: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
-                
-                genAllReports();
-            } catch (error) {
-                console.error('加载真实数据失败，使用模拟数据:', error);
-                useSimulatedData();
-            }
-        }
-        
-        // 使用模拟数据
-        function useSimulatedData() {
-            const now = new Date();
-            document.getElementById('last-update').textContent = 
-                `最後更新時間: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
-            
-            // 生成模拟数据
-            services = Object.keys(SERVICE_LIST).map(title => {
-                const serviceInfo = SERVICE_LIST[title];
-                const reliability = Math.random() * 0.1 + 0.85; // 85-95%可靠性
-                
-                return {
-                    title: title,
-                    url: serviceInfo.url,
-                    emoji: serviceInfo.emoji,
-                    statusStream: generateStatusHistory(reliability),
-                    uptime: calculateUptimePercentage(generateStatusHistory(reliability)),
-                    currentStatus: reliability > 0.9 ? 'normal' : (reliability > 0.8 ? 'warn' : 'down')
-                };
-            });
-            
-            genAllReports();
+        function calculateUptimePercentage(reliability) {
+            return Math.round(reliability * 10000) / 100; // 保留两位小数
         }
         
         // 生成所有报告
-        function genAllReports() {
+        function genAllReports(services) {
             const reportContainer = document.getElementById('reports');
             reportContainer.innerHTML = '';
+            
+            // 设置最后更新时间
+            const now = new Date();
+            document.getElementById('last-update').textContent = 
+                `最後更新時間: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
             
             services.forEach(service => {
                 // 创建服务容器
@@ -853,10 +782,17 @@
                 'gray': 'grayStatus'
             };
             
+            const statusIcon = {
+                'green': '✅',
+                'orange': '⚠️',
+                'red': '⛔',
+                'gray': '❔'
+            };
+            
             // 更新提示框内容
             document.getElementById('tooltipDateTime').textContent = date;
             document.getElementById('tooltipStatus').innerHTML = 
-                `狀態: <span class="${statusClass[status]}">${statusText[status]}</span>`;
+                `<span class="${statusClass[status]}">${statusIcon[status]} ${statusText[status]}</span>`;
             document.getElementById('tooltipDescription').textContent = note;
             
             // 定位提示框
@@ -868,7 +804,7 @@
             let left = rect.left + window.scrollX + rect.width / 2 - tooltipWidth / 2;
             
             // 防止超出屏幕
-            if (top < 20) top = rect.bottom + window.scroll极光Y + 10;
+            if (top < 20) top = rect.bottom + window.scrollY + 10;
             if (left < 20) left = 20;
             if (left + tooltipWidth > window.innerWidth - 20) 
                 left = window.innerWidth - tooltipWidth - 20;
@@ -894,9 +830,9 @@
             const savedMode = localStorage.getItem('theme');
             if (savedMode === 'dark') {
                 body.classList.add('dark-mode');
-                modeIcon.textContent = '☀️'; // 日间图标
+                modeIcon.textContent = '☀️';
             } else {
-                modeIcon.textContent = '🌙'; // 夜间图标
+                modeIcon.textContent = '🌙';
             }
             
             // 切换模式
@@ -905,19 +841,46 @@
                 const isDarkMode = body.classList.contains('dark-mode');
                 
                 if (isDarkMode) {
-                    modeIcon.textContent = '☀️'; // 日间图标
+                    modeIcon.textContent = '☀️';
                     localStorage.setItem('theme', 'dark');
+                    
+                    // 添加动画效果
+                    modeToggle.animate(
+                        [
+                            { transform: 'rotate(0deg)' },
+                            { transform: 'rotate(360deg)' }
+                        ],
+                        {
+                            duration: 800,
+                            easing: 'ease'
+                        }
+                    );
                 } else {
-                    modeIcon.textContent = '🌙'; // 夜间图标
+                    modeIcon.textContent = '🌙';
                     localStorage.setItem('theme', 'light');
+                    
+                    // 添加动画效果
+                    modeToggle.animate(
+                        [
+                            { transform: 'rotate(0deg)' },
+                            { transform: 'rotate(-360deg)' }
+                        ],
+                        {
+                            duration: 800,
+                            easing: 'ease'
+                        }
+                    );
                 }
             });
         }
         
         // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             setupModeToggle();
-            loadRealData();
+            
+            // 模拟加载数据
+            const services = await loadData();
+            genAllReports(services);
         });
     </script>
 </body>

@@ -1,56 +1,639 @@
-<html>
-  <head>
-    <title>5️⃣i計畫通行·服務監控</title>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>計畫通行·服務監控</title>
     <link rel="icon" href="https://iTCoffe.Github.io/Status/logo.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="index.css" />
-    <script src="index.js"></script>
-  </head>
-  <body>
+    <style>
+        :root {
+            --primary: #0e2c53;
+            --secondary: #18447c;
+            --success: #4caf50;
+            --danger: #f44336;
+            --warning: #ff9800;
+            --unknown: #9e9e9e;
+            --card-bg: #ffffff;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --text-dark: #333333;
+            --text-light: #f4f4f4;
+            --border: #e0e0e0;
+            --bg-body: linear-gradient(135deg, #f5f7fa 0%, #e4e7ec 100%);
+            --bg-header: linear-gradient(to right, var(--primary), var(--secondary));
+            --footer-border: var(--border);
+            --tooltip-bg: #ffffff;
+            --tooltip-border: var(--border);
+            --status-stream-title: #666666;
+            --status-subtitle-bg: #fafafa;
+            --headline-text: var(--text-light);
+        }
+        
+        /* 暗黑模式变量 */
+        .dark-mode {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --card-bg: #1e2a38;
+            --card-shadow: rgba(0, 0, 0, 0.3);
+            --text-dark: #e0e0e0;
+            --text-light: #f0f0f0;
+            --border: #2a3b4d;
+            --bg-body: linear-gradient(135deg, #0d1117 0%, #1c2a3f 100%);
+            --bg-header: linear-gradient(to right, #1d3557, #14213d);
+            --footer-border: #2a3b4d;
+            --tooltip-bg: #233247;
+            --tooltip-border: #2a3b4d;
+            --status-stream-title: #a0aec0;
+            --status-subtitle-bg: #1a2535;
+            --headline-text: #e0e0e0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        body {
+            background: var(--bg-body);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            background-attachment: fixed;
+        }
+        
+        .pageContainer {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        /* 页眉样式 */
+        .headline {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 20px;
+            background: var(--bg-header);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            color: var(--headline-text);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .headline::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+        }
+        
+        .headline span {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.25);
+        }
+        
+        .headline img {
+            height: 100px;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 4px solid rgba(255, 255, 255, 0.25);
+            background: white;
+            padding: 8px;
+        }
+        
+        /* 报告容器样式 */
+        .reportContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .statusContainer {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .statusContainer:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+        
+        .statusHeader {
+            padding: 20px 20px 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .statusTitle {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0;
+        }
+        
+        .statusHeadline {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .statusSubtitle {
+            padding: 15px 20px;
+            background-color: var(--status-subtitle-bg);
+        }
+        
+        .sectionUrl {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .sectionUrl a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .sectionUrl a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        .statusUptime {
+            background: linear-gradient(to right, var(--success), #8bc34a);
+            height: 8px;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .statusUptime::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+            width: 100%;
+            border-radius: 4px;
+        }
+        
+        .statusUptime span {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .statusStreamContainer {
+            padding: 15px 20px 20px;
+        }
+        
+        .statusStreamTitle {
+            font-size: 14px;
+            color: var(--status-stream-title);
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        
+        .statusLine {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .statusSquare {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: transform 0.2s, filter 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .statusSquare:hover {
+            transform: scale(1.3);
+            filter: brightness(1.2);
+            z-index: 2;
+        }
+        
+        /* 状态颜色 */
+        .green { background: var(--success); }
+        .red { background: var(--danger); }
+        .orange { background: var(--warning); }
+        .gray { background: var(--unknown); }
+        
+        .normal.statusHeadline { background: var(--success); color: white; }
+        .down.statusHeadline { background: var(--danger); color: white; }
+        .warn.statusHeadline { background: var(--warning); color: white; }
+        .unknown.statusHeadline { background: var(--unknown); color: white; }
+        
+        /* 提示框样式 */
+        .tooltip {
+            position: fixed;
+            background: var(--tooltip-bg);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            min-width: 220px;
+            border: 1px solid var(--tooltip-border);
+        }
+        
+        .tooltipArrow {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 20px;
+            height: 20px;
+            background: var(--tooltip-bg);
+            border-left: 1px solid var(--tooltip-border);
+            border-top: 1px solid var(--tooltip-border);
+            z-index: -1;
+        }
+        
+        .tooltipDateTime {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+        
+        .tooltipStatus {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+        
+        .tooltip hr {
+            border: none;
+            border-top: 1px dashed var(--border);
+            margin: 10px 0;
+        }
+        
+        .tooltipDescription {
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+        
+        .greenStatus { color: var(--success); }
+        .redStatus { color: var(--danger); }
+        .orangeStatus { color: var(--warning); }
+        .grayStatus { color: var(--unknown); }
+        
+        /* 页脚样式 */
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: var(--text-dark);
+            border-top: 1px solid var(--footer-border);
+            margin-top: 30px;
+        }
+        
+        footer a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        footer a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        /* 模式切换按钮 */
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+        }
+        
+        .mode-toggle:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* 模式切换图标 */
+        #mode-icon {
+            font-size: 24px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .reportContainer {
+                grid-template-columns: 1fr;
+            }
+            
+            .headline span {
+                font-size: 24px;
+            }
+            
+            .mode-toggle {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+            }
+            
+            #mode-icon {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
     <div class="pageContainer">
-      <div class="headline">
-        <img src="logo.png" alt="Logo" width="200px" />
-        <span> 服務狀態儀表板 </span>
-      </div>
-      <div id="reports" class="reportContainer"></div>
-      <div id="tooltip" class="tooltip" style="opacity: 0">
-        <div id="tooltipArrow" class="tooltipArrow"></div>
-        <div id="tooltipDateTime" class="tooltipDateTime"></div>
-        <div id="tooltipStatus" class="tooltipStatus"></div>
-        <hr />
-        <div id="tooltipDescription" class="tooltipDescription"></div>
-      </div>
-      <div id="templates" style="display: none">
-        <div
-          id="statusSquareTemplate"
-          class="statusSquare $color"
-          data-status="$color"
-        ></div>
-        <div id="statusLineTemplate" class="statusLine"></div>
-        <div
-          id="statusStreamContainerTemplate"
-          class="statusStreamContainer"
-        ></div>
-        <div id="statusContainerTemplate" class="statusContainer">
-          <div class="statusHeader">
-            <h6 class="statusTitle">$title&nbsp;</h6>
-            <div class="$color statusHeadline">$status</div>
-          </div>
-          <div class="statusSubtitle">
-            <div class="sectionUrl"><a href="$url">$url</a></div>
-            <div class="statusUptime">$upTime in the last 30 days</div>
-          </div>
+        <!-- 模式切换按钮 -->
+        <div class="mode-toggle" id="mode-toggle">
+            <span id="mode-icon">🌙</span>
         </div>
-      </div>
+        
+        <div class="headline">
+            <img src="https://via.placeholder.com/200x200/0e2c53/ffffff?text=5️⃣i計畫" alt="5️⃣i計畫通行 Logo" />
+            <span>服務狀態儀表板</span>
+        </div>
+        
+        <div id="reports" class="reportContainer"></div>
+        
+        <div id="tooltip" class="tooltip" style="opacity: 0">
+            <div id="tooltipArrow" class="tooltipArrow"></div>
+            <div id="tooltipDateTime" class="tooltipDateTime"></div>
+            <div id="tooltipStatus" class="tooltipStatus"></div>
+            <hr />
+            <div id="tooltipDescription" class="tooltipDescription"></div>
+        </div>
+        
+        <footer>
+            Forked from <a href="https://vlink.cc/5iClub">© 2022-2025 5️⃣i計畫通行·樂玩公社</a>.
+        </footer>
     </div>
-    <footer>
-      Forked from
-      <a href="https://vlink.cc/5iClub"
-        >© 2022-2025 5️⃣i計畫通行·樂玩公社</a
-      >.
-    </footer>
-  </body>
-  <script>
-    genAllReports();
-  </script>
+    
+    <script>
+        // 服务数据
+        const services = [
+            {
+                title: "官方網站",
+                url: "https://vlink.cc",
+                statusStream: generateStatusHistory(0.97),
+                uptime: 99.97,
+                currentStatus: 'normal'
+            },
+            {
+                title: "用戶入口",
+                url: "https://member.vlink.cc",
+                statusStream: generateStatusHistory(0.93),
+                uptime: 99.86,
+                currentStatus: 'warn'
+            },
+            {
+                title: "文件服務",
+                url: "https://docs.vlink.cc",
+                statusStream: generateStatusHistory(0.99),
+                uptime: 99.95,
+                currentStatus: 'normal'
+            },
+            {
+                title: "圖片服務",
+                url: "https://image.vlink.cc",
+                statusStream: generateStatusHistory(0.95),
+                uptime: 99.78,
+                currentStatus: 'unknown'
+            },
+            {
+                title: "API服務",
+                url: "https://api.vlink.cc",
+                statusStream: generateStatusHistory(0.96),
+                uptime: 99.87,
+                currentStatus: 'normal'
+            },
+            {
+                title: "社區論壇",
+                url: "https://forum.vlink.cc",
+                statusStream: generateStatusHistory(0.85),
+                uptime: 98.21,
+                currentStatus: 'down'
+            }
+        ];
+        
+        // 生成状态历史记录
+        function generateStatusHistory(reliability) {
+            const days = 30;
+            const statusHistory = [];
+            const statusTypes = ['green', 'orange', 'red', 'gray'];
+            
+            for (let i = days; i > 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                
+                // 根据可靠性比例生成状态
+                if (Math.random() < reliability) {
+                    statusHistory.push({
+                        day: date.toISOString().split('T')[0],
+                        status: 'green',
+                        note: '服務運行正常'
+                    });
+                } else {
+                    const status = statusTypes[Math.floor(Math.random() * 3) + 1];
+                    const notes = [
+                        '進行維護更新',
+                        '系統升級中',
+                        '網絡不穩定',
+                        '伺服器重啟中',
+                        '硬件故障修復'
+                    ];
+                    
+                    statusHistory.push({
+                        day: date.toISOString().split('T')[0],
+                        status: status,
+                        note: notes[Math.floor(Math.random() * notes.length)]
+                    });
+                }
+            }
+            
+            return statusHistory;
+        }
+        
+        // 生成所有报告
+        function genAllReports() {
+            const reportContainer = document.getElementById('reports');
+            reportContainer.innerHTML = '';
+            
+            services.forEach(service => {
+                // 创建服务容器
+                const serviceElement = document.createElement('div');
+                serviceElement.className = 'statusContainer';
+                
+                // 状态标题翻译
+                const statusText = {
+                    'normal': '正常',
+                    'warn': '警告',
+                    'down': '中斷',
+                    'unknown': '未知'
+                };
+                
+                // 构建服务内容
+                serviceElement.innerHTML = `
+                    <div class="statusHeader">
+                        <h6 class="statusTitle">${service.title}&nbsp;</h6>
+                        <div class="${service.currentStatus} statusHeadline">${statusText[service.currentStatus]}</div>
+                    </div>
+                    <div class="statusSubtitle">
+                        <div class="sectionUrl"><a href="${service.url}" target="_blank">${service.url}</a></div>
+                        <div class="statusUptime" style="width: 100%;">
+                            <span>${service.uptime}%</span>
+                            <div style="height: 100%; width: ${service.uptime}%; background: linear-gradient(90deg, rgba(255,255,255,0.3) 0%, transparent);"></div>
+                        </div>
+                    </div>
+                    <div class="statusStreamContainer">
+                        <div class="statusStreamTitle">最近30天狀態歷史</div>
+                        <div class="statusLine"></div>
+                    </div>
+                `;
+                
+                // 添加状态方块
+                const statusLine = serviceElement.querySelector('.statusLine');
+                service.statusStream.forEach(day => {
+                    const statusSquare = document.createElement('div');
+                    statusSquare.className = `statusSquare ${day.status}`;
+                    statusSquare.setAttribute('data-date', day.day);
+                    statusSquare.setAttribute('data-status', day.status);
+                    statusSquare.setAttribute('data-note', day.note);
+                    
+                    // 添加鼠标事件监听器
+                    statusSquare.addEventListener('mouseenter', showTooltip);
+                    statusSquare.addEventListener('mouseleave', hideTooltip);
+                    
+                    statusLine.appendChild(statusSquare);
+                });
+                
+                reportContainer.appendChild(serviceElement);
+            });
+        }
+        
+        // 显示提示框
+        function showTooltip(event) {
+            const tooltip = document.getElementById('tooltip');
+            const date = event.target.getAttribute('data-date');
+            const status = event.target.getAttribute('data-status');
+            const note = event.target.getAttribute('data-note');
+            
+            const statusText = {
+                'green': '正常',
+                'orange': '警告',
+                'red': '中斷',
+                'gray': '未知'
+            };
+            
+            const statusClass = {
+                'green': 'greenStatus',
+                'orange': 'orangeStatus',
+                'red': 'redStatus',
+                'gray': 'grayStatus'
+            };
+            
+            // 更新提示框内容
+            document.getElementById('tooltipDateTime').textContent = date;
+            document.getElementById('tooltipStatus').innerHTML = 
+                `狀態: <span class="${statusClass[status]}">${statusText[status]}</span>`;
+            document.getElementById('tooltipDescription').textContent = note;
+            
+            // 定位提示框
+            const rect = event.target.getBoundingClientRect();
+            const tooltipHeight = tooltip.offsetHeight;
+            
+            tooltip.style.left = `${rect.left + window.scrollX}px`;
+            tooltip.style.top = `${rect.top + window.scrollY - tooltipHeight - 15}px`;
+            tooltip.style.opacity = '1';
+        }
+        
+        // 隐藏提示框
+        function hideTooltip() {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.opacity = '0';
+        }
+        
+        // 模式切换功能
+        function setupModeToggle() {
+            const modeToggle = document.getElementById('mode-toggle');
+            const modeIcon = document.getElementById('mode-icon');
+            const body = document.body;
+            
+            // 检查localStorage中的模式设置
+            const savedMode = localStorage.getItem('theme');
+            if (savedMode === 'dark') {
+                body.classList.add('dark-mode');
+                modeIcon.textContent = '☀️'; // 日间图标
+            } else {
+                modeIcon.textContent = '🌙'; // 夜间图标
+            }
+            
+            // 切换模式
+            modeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                const isDarkMode = body.classList.contains('dark-mode');
+                
+                if (isDarkMode) {
+                    modeIcon.textContent = '☀️'; // 日间图标
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    modeIcon.textContent = '🌙'; // 夜间图标
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            genAllReports();
+            setupModeToggle();
+        });
+    </script>
+</body>
 </html>

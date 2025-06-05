@@ -1,56 +1,600 @@
-<html>
-  <head>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>5️⃣i計畫通行·服務監控</title>
     <link rel="icon" href="https://iTCoffe.Github.io/Status/logo.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="index.css" />
-    <script src="index.js"></script>
-  </head>
-  <body>
+    <style>
+        :root {
+            /* 深色模式變量 */
+            --dark-bg: #1a202c;
+            --dark-card: #2d3748;
+            --dark-text: #e2e8f0;
+            --dark-secondary: #a0aec0;
+            --dark-border: #4a5568;
+            --dark-shadow: rgba(0, 0, 0, 0.25);
+            
+            /* 日間模式變量 */
+            --light-bg: #f8fafc;
+            --light-card: #ffffff;
+            --light-text: #1a202c;
+            --light-secondary: #718096;
+            --light-border: #e2e8f0;
+            --light-shadow: rgba(0, 0, 0, 0.05);
+            
+            /* 狀態色變量 */
+            --operational: #2cbe4e;
+            --degraded: #ffcb00;
+            --downtime: #e74c3c;
+            --maintenance: #9b59b6;
+            --unknown: #95a5a6;
+            
+            /* 當前使用的顏色變量 */
+            --bg-color: var(--light-bg);
+            --card-bg: var(--light-card);
+            --text-color: var(--light-text);
+            --secondary-text: var(--light-secondary);
+            --border-color: var(--light-border);
+            --shadow: var(--light-shadow);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+            padding: 20px;
+            margin: 0;
+        }
+
+        /* 深色模式樣式 */
+        body.dark-mode {
+            --bg-color: var(--dark-bg);
+            --card-bg: var(--dark-card);
+            --text-color: var(--dark-text);
+            --secondary-text: var(--dark-secondary);
+            --border-color: var(--dark-border);
+            --shadow: var(--dark-shadow);
+        }
+
+        /* 佈局容器 */
+        .pageContainer {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* 頁眉樣式 */
+        .headline {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .headline span {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .headline img {
+            height: 48px;
+            width: auto;
+        }
+
+        /* 模式切換按鈕 */
+        .theme-switch {
+            position: absolute;
+            top: 25px;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 5px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 6px var(--shadow);
+        }
+
+        .theme-switch:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+
+        .theme-switch svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--secondary-text);
+        }
+
+        /* 報告容器樣式 */
+        .reportContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        /* 狀態卡片樣式 */
+        .statusContainer {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+
+        .statusContainer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px var(--shadow);
+        }
+
+        .statusHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .statusTitle {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .statusHeadline {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .operational { background-color: rgba(44, 190, 78, 0.15); color: var(--operational); }
+        .degraded { background-color: rgba(255, 203, 0, 0.15); color: var(--degraded); }
+        .downtime { background-color: rgba(231, 76, 60, 0.15); color: var(--downtime); }
+        .maintenance { background-color: rgba(155, 89, 182, 0.15); color: var(--maintenance); }
+        .unknown { background-color: rgba(149, 165, 166, 0.15); color: var(--unknown); }
+
+        .statusSubtitle {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--secondary-text);
+        }
+
+        .sectionUrl a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .sectionUrl a:hover {
+            color: var(--operational);
+            text-decoration: underline;
+        }
+
+        .statusUptime {
+            font-weight: 500;
+        }
+
+        /* 時間線樣式 */
+        .statusLine {
+            display: flex;
+            height: 40px;
+            align-items: center;
+            margin: 15px 0 0;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .timeLineTitle {
+            color: var(--secondary-text);
+            font-size: 14px;
+            min-width: 120px;
+        }
+
+        .statusStream {
+            display: flex;
+            flex-grow: 1;
+            gap: 4px;
+            height: 20px;
+            align-items: center;
+        }
+
+        .statusSquare {
+            flex: 1;
+            height: 16px;
+            border-radius: 3px;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .statusSquare:hover {
+            transform: scaleY(1.3);
+        }
+
+        /* 狀態顏色 */
+        .statusSquare.operational { background-color: var(--operational); }
+        .statusSquare.degraded { background-color: var(--degraded); }
+        .statusSquare.downtime { background-color: var(--downtime); }
+        .statusSquare.maintenance { background-color: var(--maintenance); }
+        .statusSquare.unknown { background-color: var(--unknown); }
+
+        /* 工具提示 */
+        .tooltip {
+            position: fixed;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 6px 12px var(--shadow);
+            z-index: 100;
+            max-width: 300px;
+            opacity: 0;
+            transform: translate(-50%, 10px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+        }
+
+        .tooltipArrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid var(--border-color);
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltipArrow::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-bottom: 7px solid var(--card-bg);
+            top: 1px;
+            left: -7px;
+        }
+
+        .tooltipDateTime {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+
+        .tooltipStatus {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .tooltip hr {
+            border: none;
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 8px 0;
+        }
+
+        .tooltipDescription {
+            font-size: 14px;
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        /* 頁腳樣式 */
+        footer {
+            text-align: center;
+            padding: 24px 0;
+            color: var(--secondary-text);
+            font-size: 14px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        footer a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        footer a:hover {
+            color: var(--operational);
+            text-decoration: underline;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .headline {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .statusSubtitle {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .theme-switch {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 10px auto;
+                width: fit-content;
+            }
+        }
+    </style>
+</head>
+<body>
     <div class="pageContainer">
-      <div class="headline">
-        <img src="logo.png" alt="Logo" width="200px" />
-        <span> System Status </span>
-      </div>
-      <div id="reports" class="reportContainer"></div>
-      <div id="tooltip" class="tooltip" style="opacity: 0">
-        <div id="tooltipArrow" class="tooltipArrow"></div>
-        <div id="tooltipDateTime" class="tooltipDateTime"></div>
-        <div id="tooltipStatus" class="tooltipStatus"></div>
-        <hr />
-        <div id="tooltipDescription" class="tooltipDescription"></div>
-      </div>
-      <div id="templates" style="display: none">
-        <div
-          id="statusSquareTemplate"
-          class="statusSquare $color"
-          data-status="$color"
-        ></div>
-        <div id="statusLineTemplate" class="statusLine"></div>
-        <div
-          id="statusStreamContainerTemplate"
-          class="statusStreamContainer"
-        ></div>
-        <div id="statusContainerTemplate" class="statusContainer">
-          <div class="statusHeader">
-            <h6 class="statusTitle">$title&nbsp;</h6>
-            <div class="$color statusHeadline">$status</div>
-          </div>
-          <div class="statusSubtitle">
-            <div class="sectionUrl"><a href="$url">$url</a></div>
-            <div class="statusUptime">$upTime in the last 30 days</div>
-          </div>
+        <!-- 模式切換按鈕 -->
+        <div class="theme-switch" id="themeToggle">
+            <svg class="light-icon" viewBox="0 0 24 24">
+                <path d="M12,7a5,5,0,1,0,5,5,5,5,0,0,0-5-5ZM12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20ZM12,9a3,3,0,1,1-3,3A3,3,0,0,1,12,9Z"/>
+            </svg>
+            <svg class="dark-icon" viewBox="0 0 24 24">
+                <path d="M12.43,2.3a1,1,0,0,0-1,.12,1,1,0,0,0-.34,1,9,9,0,0,0,7.38,7.42,1,1,0,0,0,1.14-1.3A11,11,0,0,1,12.43,2.3ZM10,16.7a10.31,10.31,0,0,1-6.32-2.75A10.09,10.09,0,0,1,1,9.86,9.9,9.9,0,0,1,2.23,5.05a1,1,0,0,0-.15-1,1,1,0,0,0-.69-.28,1,1,0,0,0-.7.3A10.9,10.9,0,0,0,0,12a12,12,0,0,0,12.64,12A12.09,12.09,0,0,0,24,12,10.87,10.87,0,0,0,22.15,5a1,1,0,0,0-1.38-.32,1,1,0,0,0-.32,1.32A9,9,0,0,1,20.81,12,8.91,8.91,0,0,1,18,18,9.19,9.19,0,0,1,10,16.7Z"/>
+            </svg>
+            <span id="themeText">深色模式</span>
         </div>
-      </div>
+        
+        <div class="headline">
+            <img src="logo.png" alt="5️⃣i計畫通行 Logo" width="200">
+            <span>服務狀態儀表板</span>
+        </div>
+        
+        <div id="reports" class="reportContainer">
+            <!-- 這裡將由JavaScript填充狀態報告 -->
+        </div>
+        
+        <div id="tooltip" class="tooltip">
+            <div id="tooltipArrow" class="tooltipArrow"></div>
+            <div id="tooltipDateTime" class="tooltipDateTime"></div>
+            <div id="tooltipStatus" class="tooltipStatus"></div>
+            <hr>
+            <div id="tooltipDescription" class="tooltipDescription"></div>
+        </div>
+        
+        <div id="templates" style="display: none">
+            <div id="statusSquareTemplate" class="statusSquare $color" data-status="$color"></div>
+            <div id="statusLineTemplate" class="statusLine">
+                <div class="timeLineTitle">過去7天狀態</div>
+                <div class="statusStream"></div>
+            </div>
+            <div id="statusStreamContainerTemplate" class="statusStreamContainer"></div>
+            <div id="statusContainerTemplate" class="statusContainer">
+                <div class="statusHeader">
+                    <h6 class="statusTitle">$title&nbsp;</h6>
+                    <div class="$color statusHeadline">$status</div>
+                </div>
+                <div class="statusSubtitle">
+                    <div class="sectionUrl"><a href="$url">$url</a></div>
+                    <div class="statusUptime">$upTime in the last 30 days</div>
+                </div>
+            </div>
+        </div>
     </div>
+    
     <footer>
-      Forked from
-      <a href="https://vlink.cc/5iClub"
-        >© 2022-2025 5️⃣i計畫通行·樂玩公社</a
-      >.
+        Forked from <a href="https://vlink.cc/5iClub">© 2022-2025 5️⃣i計畫通行·樂玩公社</a>
     </footer>
-  </body>
-  <script>
-    genAllReports();
-  </script>
+    
+    <script>
+        // 狀態數據模擬
+        const services = [
+            {
+                title: "主站服務",
+                status: "Operational",
+                statusCode: "operational",
+                url: "https://main.5i-plan.com",
+                upTime: "100%"
+            },
+            {
+                title: "API 服務",
+                status: "Operational",
+                statusCode: "operational",
+                url: "https://api.5i-plan.com",
+                upTime: "99.99%"
+            },
+            {
+                title: "會員系統",
+                status: "Degraded Performance",
+                statusCode: "degraded",
+                url: "https://account.5i-plan.com",
+                upTime: "99.7%"
+            },
+            {
+                title: "支付網關",
+                status: "Operational",
+                statusCode: "operational",
+                url: "https://pay.5i-plan.com",
+                upTime: "100%"
+            },
+            {
+                title: "通知服務",
+                status: "Partial Outage",
+                statusCode: "downtime",
+                url: "https://notify.5i-plan.com",
+                upTime: "98.3%"
+            }
+        ];
+        
+        // 過去7天狀態模擬
+        function generateHistoricalStatus() {
+            return Array(24).fill(0).map(() => {
+                const rand = Math.random();
+                if (rand < 0.8) return "operational";
+                if (rand < 0.9) return "degraded";
+                return "downtime";
+            });
+        }
+        
+        // 生成報告
+        function genAllReports() {
+            const container = document.getElementById("reports");
+            container.innerHTML = "";
+            
+            services.forEach(service => {
+                // 使用模板創建報告
+                const tempContainer = document.getElementById("statusContainerTemplate").cloneNode(true);
+                const html = tempContainer.innerHTML
+                    .replace(/\$title/g, service.title)
+                    .replace(/\$status/g, service.status)
+                    .replace(/\$color/g, service.statusCode)
+                    .replace(/\$url/g, service.url)
+                    .replace(/\$upTime/g, service.upTime);
+                
+                // 創報告元素
+                const report = document.createElement("div");
+                report.innerHTML = html;
+                const reportElement = report.children[0];
+                container.appendChild(reportElement);
+                
+                // 添加時間線
+                const timeline = document.getElementById("statusLineTemplate").cloneNode(true);
+                const streamContainer = timeline.querySelector(".statusStream");
+                
+                // 生成歷史狀態方塊
+                const statuses = generateHistoricalStatus();
+                const squareTemplate = document.getElementById("statusSquareTemplate");
+                
+                statuses.forEach(status => {
+                    const square = squareTemplate.cloneNode(true);
+                    square.className = square.className.replace("$color", status);
+                    square.dataset.status = status;
+                    streamContainer.appendChild(square);
+                });
+                
+                reportElement.appendChild(timeline);
+                
+                // 添加懸停事件
+                const squares = reportElement.querySelectorAll(".statusSquare");
+                squares.forEach(square => {
+                    square.addEventListener("mousemove", showTooltip);
+                    square.addEventListener("mouseleave", hideTooltip);
+                });
+            });
+        }
+        
+        // 工具提示
+        let tooltipTimeout;
+        
+        function showTooltip(e) {
+            clearTimeout(tooltipTimeout);
+            
+            const tooltip = document.getElementById("tooltip");
+            const tooltipDateTime = document.getElementById("tooltipDateTime");
+            const tooltipStatus = document.getElementById("tooltipStatus");
+            const tooltipDescription = document.getElementById("tooltipDescription");
+            const tooltipArrow = document.getElementById("tooltipArrow");
+            
+            const status = e.target.dataset.status;
+            let statusText = "";
+            let description = "";
+            
+            switch(status) {
+                case "operational":
+                    statusText = "正常運作";
+                    description = "服務運行正常，所有功能可用";
+                    break;
+                case "degraded":
+                    statusText = "效能降低";
+                    description = "服務可能變慢或部分功能受影響";
+                    break;
+                case "downtime":
+                    statusText = "服務中斷";
+                    description = "服務部分或完全中斷，工程師正在處理中";
+                    break;
+                case "maintenance":
+                    statusText = "維護中";
+                    description = "系統正在進行維護更新";
+                    break;
+                default:
+                    statusText = "未知狀態";
+                    description = "無法確定服務狀態";
+            }
+            
+            // 設定工具提示內容
+            tooltipDateTime.textContent = "今天，15:30";
+            tooltipStatus.textContent = statusText;
+            tooltipStatus.className = "tooltipStatus";
+            tooltipStatus.classList.add(status);
+            tooltipDescription.textContent = description;
+            
+            // 定位工具提示
+            tooltip.style.left = e.pageX + "px";
+            tooltip.style.top = (e.pageY - 10) + "px";
+            
+            // 顯示工具提示
+            tooltip.style.opacity = "1";
+            tooltip.style.transform = "translate(-50%, 0)";
+            tooltipTimeout = setTimeout(() => {
+                tooltip.style.opacity = "0";
+                tooltip.style.transform = "translate(-50%, 10px)";
+            }, 3000);
+        }
+        
+        function hideTooltip() {
+            clearTimeout(tooltipTimeout);
+            const tooltip = document.getElementById("tooltip");
+            tooltip.style.opacity = "0";
+            tooltip.style.transform = "translate(-50%, 10px)";
+        }
+        
+        // 主題切換功能
+        function toggleTheme() {
+            document.body.classList.toggle("dark-mode");
+            
+            if (document.body.classList.contains("dark-mode")) {
+                themeText.textContent = "日間模式";
+                localStorage.setItem("theme", "dark");
+            } else {
+                themeText.textContent = "深色模式";
+                localStorage.setItem("theme", "light");
+            }
+        }
+        
+        // 初始化
+        function init() {
+            // 檢查本地儲存的主題設定
+            const savedTheme = localStorage.getItem("theme");
+            if (savedTheme === "dark") {
+                document.body.classList.add("dark-mode");
+                themeText.textContent = "日間模式";
+            } else {
+                themeText.textContent = "深色模式";
+            }
+            
+            // 設置主題切換按鈕
+            themeToggle.addEventListener("click", toggleTheme);
+            
+            // 生成報告
+            genAllReports();
+        }
+        
+        // 元素引用
+        const themeToggle = document.getElementById("themeToggle");
+        const themeText = document.getElementById("themeText");
+        
+        // 初始化頁面
+        window.onload = init;
+    </script>
+</body>
 </html>

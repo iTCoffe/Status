@@ -11,7 +11,7 @@
         position: absolute;
         top: 20px;
         right: 20px;
-        background: rgba(0,0,0,0.1);
+        background: var(--toggle-btn-bg);
         border: none;
         border-radius: 50%;
         width: 40px;
@@ -22,46 +22,78 @@
         justify-content: center;
         transition: all 0.3s ease;
         z-index: 100;
+        color: var(--text-primary); /* 文字颜色与主要文字一致 */
       }
       
       .theme-toggle:hover {
-        background: rgba(0,0,0,0.2);
+        background: var(--toggle-btn-hover-bg);
       }
       
       /* 暗黑模式CSS变量 */
       :root {
-        --bg-primary: #ffffff;
-        --text-primary: #333333;
-        --text-secondary: #666666;
-        --title-color: #000000; /* 专门为标题定义的颜色变量 */
-        --panel-bg: #f8f9fa;
-        --panel-border: #eaeaea;
-        --footer-text: #666;
-        --tooltip-bg: rgba(255,255,255,0.95);
+        /* 基础颜色 */
+        --bg-primary: #ffffff; /* 主背景 */
+        --bg-secondary: #f8f9fa; /* 面板背景 */
+        --bg-tertiary: #f0f0f0; /* 状态流背景 */
+        
+        /* 文字颜色 */
+        --text-primary: #333333; /* 主要文字 */
+        --text-secondary: #666666; /* 次要文字 */
+        --text-tertiary: #999999; /* 三级文字 */
+        --title-color: #000000; /* 标题文字 */
+        
+        /* 其他界面元素 */
+        --panel-border: #eaeaea; /* 面板边框 */
+        --footer-text: #666666; /* 页脚文字 */
+        --link-color: #0069d9; /* 链接颜色 */
+        --divider-color: #eeeeee; /* 分隔线颜色 */
+        --toggle-btn-bg: rgba(0,0,0,0.1); /* 切换按钮背景 */
+        --toggle-btn-hover-bg: rgba(0,0,0,0.2); /* 切换按钮悬停背景 */
+        
+        /* 状态颜色 */
         --status-up: #2ecc71;
         --status-down: #e74c3c;
         --status-degraded: #f39c12;
-        --link-color: #0069d9;
+        
+        /* 工具提示 */
+        --tooltip-bg: rgba(255,255,255,0.95);
+        --tooltip-text: #333333;
       }
       
+      /* 暗黑模式系统偏好 */
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg-primary: #121212;
-          --text-primary: #ffffff; /* 确保主要文字为白色 */
-          --text-secondary: #bbbbbb;
-          --title-color: #ffffff; /* 暗黑模式下标题也为白色 */
-          --panel-bg: #1e1e1e;
-          --panel-border: #333;
-          --footer-text: #dddddd;
-          --tooltip-bg: rgba(30,30,30,0.95);
-          --status-up: #27ae60;
-          --status-down: #c0392b;
-          --status-degraded: #d35400;
-          --link-color: #4da6ff;
+          /* 基础颜色 */
+          --bg-primary: #121212; /* 深黑主背景 */
+          --bg-secondary: #1e1e1e; /* 深灰面板背景 */
+          --bg-tertiary: #181818; /* 暗黑状态流背景 */
+          
+          /* 文字颜色 */
+          --text-primary: #ffffff; /* 白色主要文字 */
+          --text-secondary: #bbbbbb; /* 浅灰次要文字 */
+          --text-tertiary: #999999; /* 中灰三级文字 */
+          --title-color: #ffffff; /* 白色标题文字 */
+          
+          /* 其他界面元素 */
+          --panel-border: #333333; /* 深灰边框 */
+          --footer-text: #dddddd; /* 浅灰页脚文字 */
+          --link-color: #4da6ff; /* 亮蓝色链接 */
+          --divider-color: #444444; /* 深灰分隔线 */
+          --toggle-btn-bg: rgba(255,255,255,0.1); /* 透明白按钮 */
+          --toggle-btn-hover-bg: rgba(255,255,255,0.2); /* 悬停状态 */
+          
+          /* 状态颜色 */
+          --status-up: #27ae60; /* 暗绿 */
+          --status-down: #c0392b; /* 暗红 */
+          --status-degraded: #d35400; /* 暗橙 */
+          
+          /* 工具提示 */
+          --tooltip-bg: rgba(30,30,30,0.95); /* 深灰半透明 */
+          --tooltip-text: #ffffff; /* 白色文字 */
         }
       }
       
-      /* 应用CSS变量到现有样式 */
+      /* === 所有背景元素适配 === */
       body {
         background-color: var(--bg-primary);
         color: var(--text-primary);
@@ -72,37 +104,45 @@
         background-color: var(--bg-primary);
       }
       
-      .headline {
-        color: var(--title-color); /* 标题使用专门的变量 */
-      }
-      
-      .headline span {
-        color: var(--title-color); /* 确保System Status文字颜色正确 */
-      }
-      
       .reportContainer, 
       .statusContainer {
-        background-color: var(--panel-bg);
+        background-color: var(--bg-secondary);
         border-color: var(--panel-border);
-      }
-      
-      footer {
-        color: var(--footer-text);
       }
       
       .tooltip {
         background-color: var(--tooltip-bg);
-        color: var(--text-primary);
       }
       
-      .statusTitle,
-      .statusHeadline,
-      .sectionUrl,
-      .statusUptime,
-      .tooltipDateTime,
-      .tooltipStatus,
-      .tooltipDescription {
+      .statusStreamContainer {
+        background-color: var(--bg-tertiary);
+      }
+      
+      footer {
+        background-color: var(--bg-primary);
+      }
+      
+      /* === 所有文字元素适配 === */
+      body, 
+      .headline, 
+      .headline span, 
+      .statusTitle, 
+      .statusHeadline, 
+      .sectionUrl, 
+      .sectionUrl a, 
+      .statusUptime, 
+      .tooltipDateTime, 
+      .tooltipStatus, 
+      .tooltipDescription,
+      footer,
+      footer a {
         color: var(--text-primary);
+        transition: color 0.3s, background-color 0.3s;
+      }
+      
+      /* 特定文字元素 */
+      .headline span {
+        color: var(--title-color);
       }
       
       .statusSubtitle {
@@ -111,27 +151,14 @@
       
       a {
         color: var(--link-color);
-        transition: color 0.3s;
       }
       
-      a:hover {
-        opacity: 0.8;
+      .tooltip {
+        color: var(--tooltip-text);
       }
       
-      /* 暗黑模式特定覆盖 */
-      body.dark-mode {
-        --bg-primary: #121212;
-        --text-primary: #ffffff;
-        --text-secondary: #bbbbbb;
-        --title-color: #ffffff; /* 暗黑模式下标题保持白色 */
-        --panel-bg: #1e1e1e;
-        --panel-border: #333;
-        --footer-text: #dddddd;
-        --tooltip-bg: rgba(30,30,30,0.95);
-        --status-up: #27ae60;
-        --status-down: #c0392b;
-        --status-degraded: #d35400;
-        --link-color: #4da6ff;
+      .tooltip hr {
+        border-color: var(--divider-color);
       }
       
       /* 状态颜色处理 */
@@ -148,6 +175,37 @@
       .statusSquare.degraded, .statusHeadline.degraded {
         background-color: var(--status-degraded) !important;
         color: white !important;
+      }
+      
+      /* === 暗黑模式手动切换 === */
+      body.dark-mode {
+        /* 背景颜色 */
+        --bg-primary: #121212;
+        --bg-secondary: #1e1e1e;
+        --bg-tertiary: #181818;
+        
+        /* 文字颜色 */
+        --text-primary: #ffffff;
+        --text-secondary: #bbbbbb;
+        --text-tertiary: #999999;
+        --title-color: #ffffff;
+        
+        /* 其他界面元素 */
+        --panel-border: #333333;
+        --footer-text: #dddddd;
+        --link-color: #4da6ff;
+        --divider-color: #444444;
+        --toggle-btn-bg: rgba(255,255,255,0.1);
+        --toggle-btn-hover-bg: rgba(255,255,255,0.2);
+        
+        /* 状态颜色 */
+        --status-up: #27ae60;
+        --status-down: #c0392b;
+        --status-degraded: #d35400;
+        
+        /* 工具提示 */
+        --tooltip-bg: rgba(30,30,30,0.95);
+        --tooltip-text: #ffffff;
       }
     </style>
   </head>

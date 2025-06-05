@@ -1,16 +1,30 @@
-name: Scheduled Health Check
+name: Service Status Monitor
 
-# Controls when the action will run.
+# 控制何时运行操作
 on:
   schedule:
-    - cron: "30 * * * *"
+    # 每30分钟运行一次: 在每小时的0, 30分钟运行
+    - cron: "0,30 * * * *"
+
+  # 允许手动触发
+  workflow_dispatch:
 
 jobs:
   health_check_job:
     runs-on: ubuntu-latest
-    name: Check all sites
+    name: 服务健康检查
     steps:
-      - uses: actions/checkout@v2
-      - name: Run Shell Script
+      - name: 检出代码
+        uses: actions/checkout@v2
+        
+      - name: 运行健康检查
         id: shell_script_run
         run: bash ./health-check.sh
+        
+      - name: 提交更新
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add status.json
+          git commit -m "自动更新服务状态"
+          git push

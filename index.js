@@ -108,7 +108,7 @@ function templatizeString(text, parameters) {
 
 function getStatusText(color) {
   return color == "nodata"
-    ? "No Data Available"
+    ? "無數據"
     : color == "success"
     ? "正常"
     : color == "failure"
@@ -120,7 +120,7 @@ function getStatusText(color) {
 
 function getStatusDescriptiveText(color) {
   return color == "nodata"
-    ? "No Data Available: Health check was not performed."
+    ? "本日無健康記錄"
     : color == "success"
     ? "本日無停機記錄"
     : color == "failure"

@@ -108,25 +108,25 @@ function templatizeString(text, parameters) {
 
 function getStatusText(color) {
   return color == "nodata"
-    ? "無數據"
+    ? "No Data Available"
     : color == "success"
-    ? "正常"
+    ? "Fully Operational"
     : color == "failure"
-    ? "故障"
+    ? "Major Outage"
     : color == "partial"
-    ? "警告"
+    ? "Partial Outage"
     : "Unknown";
 }
 
 function getStatusDescriptiveText(color) {
   return color == "nodata"
-    ? "本日無健康記錄"
+    ? "No Data Available: Health check was not performed."
     : color == "success"
-    ? "本日無停機記錄"
+    ? "No downtime recorded on this day."
     : color == "failure"
-    ? "本日停機記錄"
+    ? "Major outages recorded on this day."
     : color == "partial"
-    ? "本日部分停機記錄"
+    ? "Partial outages recorded on this day."
     : "Unknown";
 }
 

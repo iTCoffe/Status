@@ -33,6 +33,7 @@
         --bg-primary: #ffffff;
         --text-primary: #333333;
         --text-secondary: #666666;
+        --title-color: #000000; /* 专门为标题定义的颜色变量 */
         --panel-bg: #f8f9fa;
         --panel-border: #eaeaea;
         --footer-text: #666;
@@ -48,6 +49,7 @@
           --bg-primary: #121212;
           --text-primary: #ffffff; /* 确保主要文字为白色 */
           --text-secondary: #bbbbbb;
+          --title-color: #ffffff; /* 暗黑模式下标题也为白色 */
           --panel-bg: #1e1e1e;
           --panel-border: #333;
           --footer-text: #dddddd;
@@ -70,6 +72,14 @@
         background-color: var(--bg-primary);
       }
       
+      .headline {
+        color: var(--title-color); /* 标题使用专门的变量 */
+      }
+      
+      .headline span {
+        color: var(--title-color); /* 确保System Status文字颜色正确 */
+      }
+      
       .reportContainer, 
       .statusContainer {
         background-color: var(--panel-bg);
@@ -85,7 +95,6 @@
         color: var(--text-primary);
       }
       
-      .headline span,
       .statusTitle,
       .statusHeadline,
       .sectionUrl,
@@ -112,8 +121,9 @@
       /* 暗黑模式特定覆盖 */
       body.dark-mode {
         --bg-primary: #121212;
-        --text-primary: #ffffff; /* 确保主要文字为白色 */
+        --text-primary: #ffffff;
         --text-secondary: #bbbbbb;
+        --title-color: #ffffff; /* 暗黑模式下标题保持白色 */
         --panel-bg: #1e1e1e;
         --panel-border: #333;
         --footer-text: #dddddd;

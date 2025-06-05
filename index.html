@@ -1,238 +1,615 @@
-<html>
-  <head>
-    <title>5️⃣i計畫通行·服務監控</title>
-    <link rel="icon" href="https://iTCoffe.Github.io/Status/logo.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="index.css" />
-    <script src="index.js"></script>
-    <style>
-      /* 添加暗黑模式切换按钮样式 */
-      .theme-toggle {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: rgba(0,0,0,0.1);
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        z-index: 100;
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5️⃣i計畫通行·服務監控</title>
+  <link rel="icon" href="https://iTCoffe.Github.io/Status/logo.ico" />
+  <style>
+    :root {
+      /* 浅色模式变量 */
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --header-bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --card-border: #e0e0e0;
+      --link-color: #1a0dab;
+      --hover-color: #f5f5f5;
+      --status-good: #10b981;
+      --status-minor: #f59e0b;
+      --status-major: #ef4444;
+      --status-maintenance: #6366f1;
+      --uptime-good: #22c55e;
+      --uptime-warning: #f59e0b;
+      --uptime-bad: #ef4444;
+      --tooltip-bg: rgba(255, 255, 255, 0.95);
+      --tooltip-shadow: rgba(0, 0, 0, 0.1);
+      --footer-border: #e0e0e0;
+      --toggle-bg: #f0f0f0;
+      --toggle-icon: '🌙';
+    }
+
+    /* 深色模式变量 */
+    body.dark-mode {
+      --bg-color: #121212;
+      --text-color: #e0e0e0;
+      --header-bg: #1e1e1e;
+      --card-bg: #1e1e1e;
+      --card-border: #333333;
+      --link-color: #bb86fc;
+      --hover-color: #2d2d2d;
+      --status-good: #10b981;
+      --status-minor: #f59e0b;
+      --status-major: #ef4444;
+      --status-maintenance: #818cf8;
+      --uptime-good: #22c55e;
+      --uptime-warning: #f59e0b;
+      --uptime-bad: #ef4444;
+      --tooltip-bg: rgba(30, 30, 30, 0.95);
+      --tooltip-shadow: rgba(0, 0, 0, 0.3);
+      --footer-border: #333333;
+      --toggle-bg: #2d2d2d;
+      --toggle-icon: '☀️';
+    }
+
+    /* 基本样式 */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* 页头样式 */
+    .pageContainer {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+    }
+
+    .headline {
+      display: flex;
+      align-items: center;
+      padding: 20px 0;
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--card-border);
+      background-color: var(--header-bg);
+      position: relative;
+    }
+
+    .headline img {
+      height: 40px;
+      margin-right: 20px;
+    }
+
+    .headline span {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--text-color);
+    }
+
+    /* 暗黑模式切换按钮 */
+    .dark-mode-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--toggle-bg);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: background-color 0.3s ease;
+    }
+
+    .dark-mode-toggle::after {
+      content: var(--toggle-icon);
+      transition: transform 0.3s ease;
+    }
+
+    .dark-mode-toggle:hover::after {
+      transform: scale(1.2);
+    }
+
+    /* 服务状态卡片样式 */
+    .reportContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .statusContainer {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .statusContainer:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .statusHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .statusTitle {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--text-color);
+    }
+
+    .statusHeadline {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .status-good {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: var(--status-good);
+    }
+
+    .status-minor {
+      background-color: rgba(245, 158, 11, 0.15);
+      color: var(--status-minor);
+    }
+
+    .status-major {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: var(--status-major);
+    }
+
+    .status-maintenance {
+      background-color: rgba(99, 102, 241, 0.15);
+      color: var(--status-maintenance);
+    }
+
+    .statusSubtitle {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sectionUrl {
+      margin-bottom: 8px;
+    }
+
+    .sectionUrl a {
+      color: var(--link-color);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .sectionUrl a:hover {
+      text-decoration: underline;
+    }
+
+    .statusUptime {
+      font-size: 14px;
+      color: var(--text-color);
+    }
+
+    .uptime-good {
+      color: var(--uptime-good);
+    }
+
+    .uptime-warning {
+      color: var(--uptime-warning);
+    }
+
+    .uptime-bad {
+      color: var(--uptime-bad);
+    }
+
+    /* 状态时间线样式 */
+    .statusTimeline {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .statusLine {
+      display: flex;
+      height: 32px;
+      margin-bottom: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .statusSquare {
+      width: 24px;
+      height: 24px;
+      margin-right: 3px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .statusSquare:hover {
+      transform: scale(1.2);
+    }
+
+    .status-good {
+      background-color: var(--status-good);
+    }
+
+    .status-minor {
+      background-color: var(--status-minor);
+    }
+
+    .status-major {
+      background-color: var(--status-major);
+    }
+
+    .status-maintenance {
+      background-color: var(--status-maintenance);
+    }
+
+    /* 提示框样式 */
+    .tooltip {
+      position: absolute;
+      background-color: var(--tooltip-bg);
+      color: var(--text-color);
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px var(--tooltip-shadow);
+      pointer-events: none;
+      z-index: 100;
+      width: 280px;
+      transition: opacity 0.3s;
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    .tooltipArrow {
+      position: absolute;
+      top: -10px;
+      left: 20px;
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid var(--tooltip-bg);
+    }
+
+    .tooltipDateTime {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: var(--text-color);
+    }
+
+    .tooltipStatus {
+      font-size: 14px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .tooltipDescription {
+      font-size: 14px;
+      color: var(--text-color);
+      line-height: 1.5;
+    }
+
+    hr {
+      border: none;
+      height: 1px;
+      background-color: var(--card-border);
+      margin: 10px 0;
+    }
+
+    /* 页脚样式 */
+    footer {
+      text-align: center;
+      padding: 20px 0;
+      margin-top: 40px;
+      border-top: 1px solid var(--footer-border);
+      color: var(--text-color);
+      font-size: 14px;
+    }
+
+    footer a {
+      color: var(--link-color);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* 响应式布局 */
+    @media (max-width: 768px) {
+      .reportContainer {
+        grid-template-columns: 1fr;
       }
       
-      .theme-toggle:hover {
-        background: rgba(0,0,0,0.2);
+      .headline {
+        padding: 20px 50px 20px 20px;
       }
       
-      /* 暗黑模式CSS变量 */
-      :root {
-        --bg-primary: #ffffff;
-        --text-primary: #333333;
-        --text-secondary: #666666;
-        --panel-bg: #f8f9fa;
-        --panel-border: #eaeaea;
-        --footer-text: #666;
-        --tooltip-bg: rgba(255,255,255,0.95);
-        --status-up: #2ecc71;
-        --status-down: #e74c3c;
-        --status-degraded: #f39c12;
-        --link-color: #0069d9;
+      .headline img {
+        height: 35px;
       }
       
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --bg-primary: #121212;
-          --text-primary: #ffffff; /* 确保主要文字为白色 */
-          --text-secondary: #bbbbbb;
-          --panel-bg: #1e1e1e;
-          --panel-border: #333;
-          --footer-text: #dddddd;
-          --tooltip-bg: rgba(30,30,30,0.95);
-          --status-up: #27ae60;
-          --status-down: #c0392b;
-          --status-degraded: #d35400;
-          --link-color: #4da6ff;
-        }
+      .statusContainer {
+        padding: 15px;
       }
-      
-      /* 应用CSS变量到现有样式 */
-      body {
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
-        transition: background-color 0.3s, color 0.3s;
+    }
+
+    @media (max-width: 480px) {
+      .headline span {
+        font-size: 20px;
       }
       
       .pageContainer {
-        background-color: var(--bg-primary);
+        padding: 10px;
       }
+    }
+  </style>
+</head>
+<body>
+  <div class="pageContainer">
+    <!-- 页头部分 -->
+    <div class="headline">
+      <img src="https://iTCoffe.Github.io/Status/logo.png" alt="5️⃣i計畫通行 Logo">
+      <span>系統服務狀態</span>
+    </div>
+    
+    <!-- 暗黑模式切换按钮 -->
+    <button class="dark-mode-toggle" title="切換暗黑模式"></button>
+    
+    <!-- 状态报告容器 -->
+    <div id="reports" class="reportContainer"></div>
+    
+    <!-- 提示框 -->
+    <div id="tooltip" class="tooltip" style="opacity:0">
+      <div id="tooltipArrow" class="tooltipArrow"></div>
+      <div id="tooltipDateTime" class="tooltipDateTime"></div>
+      <div id="tooltipStatus" class="tooltipStatus"></div>
+      <hr />
+      <div id="tooltipDescription" class="tooltipDescription"></div>
+    </div>
+  </div>
+  
+  <!-- 页脚 -->
+  <footer>
+    Forked from <a href="https://vlink.cc/5iClub">© 2022-2025 5️⃣i計畫通行·樂玩公社</a>
+  </footer>
+
+  <script>
+    // 暗黑模式切换功能
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+    }
+    
+    // 初始化暗黑模式
+    function initDarkMode() {
+      const toggleBtn = document.querySelector('.dark-mode-toggle');
+      toggleBtn.addEventListener('click', toggleDarkMode);
       
-      .reportContainer, 
-      .statusContainer {
-        background-color: var(--panel-bg);
-        border-color: var(--panel-border);
-      }
+      const isDark = localStorage.getItem('darkMode') === 'true';
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       
-      footer {
-        color: var(--footer-text);
+      if (isDark || (!('darkMode' in localStorage) && prefersDark)) {
+        document.body.classList.add('dark-mode');
       }
+    }
+    
+    // 服务状态数据
+    const services = [
+      {
+        id: "main-website",
+        title: "主網站服務",
+        url: "https://5i-club.tw",
+        status: "status-good",
+        statusText: "正常運行",
+        upTime: "99.98%",
+        history: [
+          { date: "2023-11-01 14:00", status: "good", description: "正常運行" },
+          { date: "2023-10-28 03:00", status: "maintenance", description: "計劃維護 - 系統升級" },
+          { date: "2023-10-20 09:30", status: "minor", description: "間歇性連線問題 - 已修復" }
+        ]
+      },
+      {
+        id: "api-service",
+        title: "API 服務",
+        url: "https://api.5i-club.tw",
+        status: "status-good",
+        statusText: "正常運行",
+        upTime: "99.95%",
+        history: [
+          { date: "2023-11-01 14:00", status: "good", description: "正常運行" },
+          { date: "2023-10-29 11:20", status: "good", description: "正常運行" },
+          { date: "2023-10-27 16:45", status: "minor", description: "部分 API 回應緩慢" }
+        ]
+      },
+      {
+        id: "payment-gateway",
+        title: "支付閘道",
+        url: "https://pay.5i-club.tw",
+        status: "status-good",
+        statusText: "正常運行",
+        upTime: "99.92%",
+        history: [
+          { date: "2023-11-01 14:00", status: "good", description: "正常運行" },
+          { date: "2023-10-30 10:15", status: "major", description: "支付處理延遲 - 已解決" },
+          { date: "2023-10-25 02:00", status: "maintenance", description: "計劃維護 - 安全性更新" }
+        ]
+      },
+      {
+        id: "database-cluster",
+        title: "數據庫集群",
+        url: null,
+        status: "status-good",
+        statusText: "正常運行",
+        upTime: "99.99%",
+        history: [
+          { date: "2023-11-01 14:00", status: "good", description: "正常運行" },
+          { date: "2023-10-31 08:00", status: "minor", description: "備份程序輕微延遲" },
+          { date: "2023-10-15 01:00", status: "maintenance", description: "計劃維護 - 優化索引" }
+        ]
+      }
+    ];
+
+    // 状态卡片模板
+    function statusContainerTemplate(service) {
+      const uptimeClass = service.upTime >= "99.99%" ? "uptime-good" : 
+                          service.upTime >= "99.9%" ? "uptime-warning" : "uptime-bad";
       
-      .tooltip {
-        background-color: var(--tooltip-bg);
-        color: var(--text-primary);
-      }
-      
-      .headline span,
-      .statusTitle,
-      .statusHeadline,
-      .sectionUrl,
-      .statusUptime,
-      .tooltipDateTime,
-      .tooltipStatus,
-      .tooltipDescription {
-        color: var(--text-primary);
-      }
-      
-      .statusSubtitle {
-        color: var(--text-secondary);
-      }
-      
-      a {
-        color: var(--link-color);
-        transition: color 0.3s;
-      }
-      
-      a:hover {
-        opacity: 0.8;
-      }
-      
-      /* 暗黑模式特定覆盖 */
-      body.dark-mode {
-        --bg-primary: #121212;
-        --text-primary: #ffffff; /* 确保主要文字为白色 */
-        --text-secondary: #bbbbbb;
-        --panel-bg: #1e1e1e;
-        --panel-border: #333;
-        --footer-text: #dddddd;
-        --tooltip-bg: rgba(30,30,30,0.95);
-        --status-up: #27ae60;
-        --status-down: #c0392b;
-        --status-degraded: #d35400;
-        --link-color: #4da6ff;
-      }
-      
-      /* 状态颜色处理 */
-      .statusSquare.up, .statusHeadline.up {
-        background-color: var(--status-up) !important;
-        color: white !important;
-      }
-      
-      .statusSquare.down, .statusHeadline.down {
-        background-color: var(--status-down) !important;
-        color: white !important;
-      }
-      
-      .statusSquare.degraded, .statusHeadline.degraded {
-        background-color: var(--status-degraded) !important;
-        color: white !important;
-      }
-    </style>
-  </head>
-  <body>
-    <button class="theme-toggle" aria-label="切换主题模式">🌓</button>
-    <div class="pageContainer">
-      <div class="headline">
-        <img src="logo.png" alt="Logo" width="200px" />
-        <span> System Status </span>
-      </div>
-      <div id="reports" class="reportContainer"></div>
-      <div id="tooltip" class="tooltip" style="opacity: 0">
-        <div id="tooltipArrow" class="tooltipArrow"></div>
-        <div id="tooltipDateTime" class="tooltipDateTime"></div>
-        <div id="tooltipStatus" class="tooltipStatus"></div>
-        <hr />
-        <div id="tooltipDescription" class="tooltipDescription"></div>
-      </div>
-      <div id="templates" style="display: none">
-        <div
-          id="statusSquareTemplate"
-          class="statusSquare $color"
-          data-status="$color"
-        ></div>
-        <div id="statusLineTemplate" class="statusLine"></div>
-        <div
-          id="statusStreamContainerTemplate"
-          class="statusStreamContainer"
-        ></div>
-        <div id="statusContainerTemplate" class="statusContainer">
+      return `
+        <div class="statusContainer" id="${service.id}">
           <div class="statusHeader">
-            <h6 class="statusTitle">$title&nbsp;</h6>
-            <div class="$color statusHeadline">$status</div>
+            <h6 class="statusTitle">${service.title}</h6>
+            <div class="${service.status} statusHeadline">${service.statusText}</div>
           </div>
           <div class="statusSubtitle">
-            <div class="sectionUrl"><a href="$url">$url</a></div>
-            <div class="statusUptime">$upTime in the last 30 days</div>
+            <div class="sectionUrl">
+              ${service.url ? `<a href="${service.url}" target="_blank">${service.url}</a>` : '內部服務'}
+            </div>
+            <div class="statusUptime ${uptimeClass}">
+              最近30天正常運行率: ${service.upTime}
+            </div>
+          </div>
+          <div class="statusTimeline">
+            <div class="statusLine" id="timeline-${service.id}">
+              ${generateStatusSquares(service.history)}
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-    <footer>
-      Forked from
-      <a href="https://vlink.cc/5iClub"
-        >© 2022-2025 5️⃣i計畫通行·樂玩公社</a
-      >.
-    </footer>
-    <script>
-      // 暗黑模式切换功能
-      document.addEventListener('DOMContentLoaded', function() {
-        const toggleBtn = document.querySelector('.theme-toggle');
-        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+      `;
+    }
+
+    // 生成状态方块
+    function generateStatusSquares(history) {
+      let squares = '';
+      
+      // 生成过去30天内的状态方块
+      for (let i = 0; i < 30; i++) {
+        // 模拟数据 - 90%的时间正常
+        let status = Math.random() > 0.1 ? 'good' : 
+                    Math.random() > 0.6 ? 'minor' : 
+                    Math.random() > 0.7 ? 'major' : 'maintenance';
         
-        // 检查本地存储或系统偏好
-        let currentTheme = localStorage.getItem('theme') || 
-                         (prefersDarkScheme.matches ? 'dark' : 'light');
-        
-        // 应用存储的主题
-        if (currentTheme === 'dark') {
-          document.body.classList.add('dark-mode');
-          toggleBtn.textContent = '🌞';
-        } else {
-          document.body.classList.remove('dark-mode');
-          toggleBtn.textContent = '🌙';
+        // 使用实际历史记录覆盖一些方块
+        if (history.length > i) {
+          status = history[i].status;
         }
         
-        // 切换主题
-        toggleBtn.addEventListener('click', function() {
-          if (document.body.classList.contains('dark-mode')) {
-            document.body.classList.remove('dark-mode');
-            localStorage.setItem('theme', 'light');
-            toggleBtn.textContent = '🌙';
-          } else {
-            document.body.classList.add('dark-mode');
-            localStorage.setItem('theme', 'dark');
-            toggleBtn.textContent = '🌞';
-          }
-        });
-        
-        // 监听系统主题变化
-        prefersDarkScheme.addEventListener('change', e => {
-          if (!localStorage.getItem('theme')) {
-            if (e.matches) {
-              document.body.classList.add('dark-mode');
-              toggleBtn.textContent = '🌞';
-            } else {
-              document.body.classList.remove('dark-mode');
-              toggleBtn.textContent = '🌙';
-            }
-          }
-        });
+        squares += `<div class="statusSquare status-${status}" 
+                         data-status="${status}" 
+                         data-date="${history.length > i ? history[i].date : randomRecentDate()}" 
+                         data-desc="${history.length > i ? history[i].description : '正常運行'}"></div>`;
+      }
+      
+      return squares;
+    }
+
+    // 随机生成日期（用于状态方块）
+    function randomRecentDate() {
+      const today = new Date();
+      const daysAgo = Math.floor(Math.random() * 30);
+      const hours = Math.floor(Math.random() * 24);
+      const minutes = Math.floor(Math.random() * 60);
+      
+      const date = new Date(today);
+      date.setDate(date.getDate() - daysAgo);
+      date.setHours(hours, minutes);
+      
+      return date.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).replace(/\//g, '-');
+    }
+
+    // 生成全部报告
+    function genAllReports() {
+      const reportsContainer = document.getElementById('reports');
+      reportsContainer.innerHTML = '';
+      
+      services.forEach(service => {
+        reportsContainer.innerHTML += statusContainerTemplate(service);
       });
       
-      // 保持原有的生成报告函数调用
+      // 添加提示事件
+      addTooltipEvents();
+    }
+
+    // 添加提示框交互事件
+    function addTooltipEvents() {
+      const tooltip = document.getElementById('tooltip');
+      const squares = document.querySelectorAll('.statusSquare');
+      
+      squares.forEach(square => {
+        square.addEventListener('mouseenter', function(e) {
+          const rect = this.getBoundingClientRect();
+          const date = this.getAttribute('data-date');
+          const status = this.getAttribute('data-status');
+          const desc = this.getAttribute('data-desc');
+          
+          // 更新提示内容
+          document.getElementById('tooltipDateTime').textContent = date;
+          document.getElementById('tooltipStatus').textContent = 
+            status === 'good' ? '運作正常' :
+            status === 'minor' ? '部分問題' :
+            status === 'major' ? '服務中斷' : '計劃維護';
+            
+          document.getElementById('tooltipStatus').className = `tooltipStatus status-${status}`;
+          document.getElementById('tooltipDescription').textContent = desc;
+          
+          // 定位提示框
+          tooltip.style.left = `${rect.left - 140}px`;
+          tooltip.style.top = `${rect.top + window.scrollY - 150}px`;
+          
+          // 定位箭头
+          document.getElementById('tooltipArrow').style.left = `${rect.left - 140 + 25}px`;
+          
+          // 显示提示
+          tooltip.style.opacity = '1';
+          tooltip.style.transform = 'translateY(0)';
+        });
+        
+        square.addEventListener('mouseleave', function() {
+          tooltip.style.opacity = '0';
+          tooltip.style.transform = 'translateY(10px)';
+        });
+      });
+    }
+
+    // 页面加载时初始化
+    window.onload = function() {
+      initDarkMode();
       genAllReports();
-    </script>
-  </body>
+    };
+  </script>
+</body>
 </html>

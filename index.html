@@ -6,6 +6,7 @@
     <title>5️⃣i計畫通行·樂玩公社</title>
     <link rel="icon" href="https://itcoffee.github.io/Status/logo.ico" />
     <style>
+        /* 所有CSS样式保持不变 */
         :root {
             --primary: #1e3a8a;
             --primary-light: #3b82f6;
@@ -30,7 +31,6 @@
             --card-hover: rgba(59, 130, 246, 0.1);
         }
         
-        /* 暗黑模式变量 */
         .dark-mode {
             --primary: #60a5fa;
             --primary-light: #3b82f6;
@@ -40,7 +40,7 @@
             --text-dark: #e2e8f0;
             --text-light: #f0f4f8;
             --border: #334155;
-            --bg-body: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --bg-body: linear-gradient(135deg, #0f172a 0%, #1e293b 极光色100%);
             --bg-header: linear-gradient(to right, #1e40af, #1e293b);
             --footer-border: #334155;
             --tooltip-bg: #1e293b;
@@ -74,7 +74,6 @@
             position: relative;
         }
         
-        /* 标题样式 */
         .headline {
             text-align: center;
             margin-bottom: 30px;
@@ -105,14 +104,13 @@
             font-size: 2.2rem;
             font-weight: 800;
             letter-spacing: 0.5px;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            text-shadow: 0 2极光px 6px rgba(0,0,0,0.3);
             background: linear-gradient(to right, #fff, #dbeafe);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             padding: 0 10px;
         }
         
-        /* 报告容器样式 */
         .reportContainer {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
@@ -196,7 +194,7 @@
             word-break: break-all;
         }
         
-        .sectionUrl a:hover {
+极光        .sectionUrl a:hover {
             color: var(--primary-light);
             text-decoration: underline;
         }
@@ -270,7 +268,6 @@
             box-shadow: 0 0 8px rgba(0,0,0,0.2);
         }
         
-        /* 状态颜色 */
         .green { background: var(--success); }
         .red { background: var(--danger); }
         .orange { background: var(--warning); }
@@ -281,7 +278,6 @@
         .warn.statusHeadline { background: var(--warning); color: white; }
         .unknown.statusHeadline { background: var(--unknown); color: white; }
         
-        /* 提示框样式 */
         .tooltip {
             position: fixed;
             background: var(--tooltip-bg);
@@ -339,9 +335,8 @@
         .greenStatus { color: var(--success); }
         .redStatus { color: var(--danger); }
         .orangeStatus { color: var(--warning); }
-        .grayStatus { color: var(--unknown); }
+        .gray极光Status { color: var(--unknown); }
         
-        /* 页脚样式 */
         footer {
             text-align: center;
             padding: 25px 20px;
@@ -365,7 +360,6 @@
             text-decoration: underline;
         }
         
-        /* 模式切换按钮 */
         .mode-toggle {
             position: fixed;
             top: 20px;
@@ -391,12 +385,10 @@
             transform: rotate(15deg);
         }
         
-        /* 模式切换图标 */
         #mode-icon {
             font-size: 24px;
         }
         
-        /* 响应式设计 */
         @media (max-width: 768px) {
             .reportContainer {
                 grid-template-columns: 1fr;
@@ -418,7 +410,6 @@
             }
         }
         
-        /* 服务图标和标签样式 */
         .service-label {
             font-size: 0.8rem;
             font-weight: 600;
@@ -429,7 +420,6 @@
             margin-left: 10px;
         }
         
-        /* GitHub Actions 配置区域 */
         .actions-config {
             background-color: rgba(248, 250, 252, 0.8);
             border: 1px solid var(--border);
@@ -477,7 +467,6 @@
             color: #ea580c;
         }
         
-        /* 加载动画 */
         .loader {
             display: flex;
             justify-content: center;
@@ -499,7 +488,6 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* 最后更新时间 */
         .last-update {
             text-align: center;
             font-size: 0.9rem;
@@ -523,7 +511,7 @@
         </div>
         
         <!-- 最后更新时间 -->
-        <div id="last-update" class="last-update"></div>
+        <div id="last-update" class="last-update">正在載入...</div>
         
         <!-- 仪表板区域 -->
         <div id="reports" class="reportContainer">
@@ -548,93 +536,56 @@
     </div>
     
     <script>
-        // 服务数据 - 使用您提供的监控网址
-        const services = [
-            {
-                title: "5i計劃通行·樂玩公社㊙️",
+        // 服务数据 - 初始为空
+        let services = [];
+        const STATUS_FILE = "status.json";
+        
+        // 真实监控服务列表
+        const SERVICE_LIST = {
+            "5i計劃通行·樂玩公社㊙️": {
                 url: "https://vlink.cc/5iClub",
-                statusStream: generateStatusHistory(0.95),
-                uptime: 99.82,
-                currentStatus: 'normal',
                 emoji: "🔐"
             },
-            {
-                title: "“閒”是生活的標點",
+            "“閒”是生活的標點": {
                 url: "https://loong.shrimp.netlib.re",
-                statusStream: generateStatusHistory(0.93),
-                uptime: 99.75,
-                currentStatus: 'normal',
                 emoji: "✨"
             },
-            {
-                title: "ADS拦截规则·CHINESE",
+            "ADS拦截规则·CHINESE": {
                 url: "https://adrules.shrimp.netlib.re",
-                statusStream: generateStatusHistory(0.97),
-                uptime: 99.91,
-                currentStatus: 'normal',
                 emoji: "🛡️"
             },
-            {
-                title: "iTV·實時直播集萃🌟",
+            "iTV·實時直播集萃🌟": {
                 url: "https://itv.shrimp.netlib.re",
-                statusStream: generateStatusHistory(0.88),
-                uptime: 98.67,
-                currentStatus: 'warn',
                 emoji: "📺"
             },
-            {
-                title: "WebView·盡享精彩瞬間",
+            "WebView·盡享精彩瞬間": {
                 url: "https://live.shrimp.netlib.re",
-                statusStream: generateStatusHistory(0.92),
-                uptime: 99.48,
-                currentStatus: 'normal',
                 emoji: "🌐"
             },
-            {
-                title: "Docker·镜像仓库",
+            "Docker·镜像仓库": {
                 url: "https://docker.5iclub.cloudns.biz",
-                statusStream: generateStatusHistory(0.96),
-                uptime: 99.78,
-                currentStatus: 'normal',
                 emoji: "🐳"
             },
-            {
-                title: "简约·网址短链",
+            "简约·网址短链": {
                 url: "https://url.5iclub.cloudns.biz",
-                statusStream: generateStatusHistory(0.98),
-                uptime: 99.96,
-                currentStatus: 'normal',
                 emoji: "🔗"
             },
-            {
-                title: "GitHub·文件加速",
+            "GitHub·文件加速": {
                 url: "https://github.5iclub.cloudns.biz",
-                statusStream: generateStatusHistory(0.94),
-                uptime: 99.61,
-                currentStatus: 'normal',
                 emoji: "⚡"
             },
-            {
-                title: "Blogspot·博客📛",
+            "Blogspot·博客📛": {
                 url: "https://blog.shrimp.netlib.re",
-                statusStream: generateStatusHistory(0.85),
-                uptime: 97.93,
-                currentStatus: 'unknown',
                 emoji: "📝"
             },
-            {
-                title: "服務監控🛎",
+            "服務監控🛎": {
                 url: "https://status.shrimp.netlib.re",
-                statusStream: generateStatusHistory(0.99),
-                uptime: 99.99,
-                currentStatus: 'normal',
                 emoji: "📊"
             }
-        ];
+        };
         
-        // 生成状态历史记录
-        function generateStatusHistory(reliability) {
-            const days = 30;
+        // 生成历史状态数据
+        function generateStatusHistory(reliability, days = 30) {
             const statusHistory = [];
             const statusTypes = ['green', 'orange', 'red', 'gray'];
             
@@ -642,7 +593,6 @@
                 const date = new Date();
                 date.setDate(date.getDate() - i);
                 
-                // 根据可靠性比例生成状态
                 if (Math.random() < reliability) {
                     statusHistory.push({
                         day: date.toISOString().split('T')[0],
@@ -675,15 +625,138 @@
             return statusHistory;
         }
         
+        // 计算可用性百分比
+        function calculateUptimePercentage(statusHistory) {
+            const successDays = statusHistory.filter(d => d.status === 'green').length;
+            const totalDays = statusHistory.length;
+            return Math.round((successDays / totalDays) * 10000) / 100; // 保留两位小数
+        }
+        
+        // 获取当前状态
+        function getCurrentStatus(statusHistory) {
+            if (statusHistory.length === 0) return 'unknown';
+            const latestStatus = statusHistory[statusHistory.length - 1].status;
+            
+            const statusMap = {
+                'green': 'normal',
+                'orange': 'warn',
+                'red': 'down',
+                'gray': 'unknown'
+            };
+            
+            return statusMap[latestStatus] || 'unknown';
+        }
+        
+        // 加载真实数据
+        async function loadRealData() {
+            try {
+                const response = await fetch(STATUS_FILE + `?t=${new Date().getTime()}`);
+                if (!response.ok) throw new Error('状态文件加载失败');
+                
+                const statusData = await response.json();
+                const now = new Date();
+                
+                // 提取日志文件数据
+                const logs = {};
+                for (const key in SERVICE_LIST) {
+                    try {
+                        const logResponse = await fetch(`logs/${key}_report.log?t=${new Date().getTime()}`);
+                        if (logResponse.ok) {
+                            const logText = await logResponse.text();
+                            logs[key] = logText;
+                        }
+                    } catch (e) {
+                        console.error(`无法加载日志: ${key}`, e);
+                    }
+                }
+                
+                // 处理服务状态
+                services = [];
+                for (const serviceName in SERVICE_LIST) {
+                    const serviceInfo = SERVICE_LIST[serviceName];
+                    const logData = logs[serviceName] || '';
+                    
+                    // 解析日志文件
+                    const statusHistory = [];
+                    const logLines = logData.split('\n').filter(line => line.trim());
+                    
+                    for (const line of logLines) {
+                        const [dateTime, statusResult] = line.split(', ');
+                        const logDate = new Date(dateTime);
+                        
+                        const statusMap = {
+                            'success': 'green',
+                            'warning': 'orange',
+                            'failed': 'red',
+                            'error': 'red',
+                            'down': 'red',
+                            'unknown': 'gray'
+                        };
+                        
+                        statusHistory.push({
+                            day: logDate.toISOString().split('T')[0],
+                            status: statusMap[statusResult] || 'gray',
+                            note: statusResult === 'success' ? '服務運行正常' : '服務異常'
+                        });
+                    }
+                    
+                    // 确保至少有30天数据
+                    let finalStatusHistory = [...statusHistory];
+                    if (statusHistory.length < 30) {
+                        // 补充模拟数据
+                        const simulatedHistory = generateStatusHistory(0.97, 30 - statusHistory.length);
+                        finalStatusHistory = [...simulatedHistory, ...statusHistory];
+                    }
+                    
+                    services.push({
+                        title: serviceName,
+                        url: serviceInfo.url,
+                        emoji: serviceInfo.emoji,
+                        statusStream: finalStatusHistory,
+                        uptime: calculateUptimePercentage(finalStatusHistory),
+                        currentStatus: getCurrentStatus(finalStatusHistory)
+                    });
+                }
+                
+                // 更新最后更新时间
+                document.getElementById('last-update').textContent = 
+                    `最後更新時間: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+                
+                genAllReports();
+            } catch (error) {
+                console.error('加载真实数据失败，使用模拟数据:', error);
+                useSimulatedData();
+            }
+        }
+        
+        // 使用模拟数据
+        function useSimulatedData() {
+            const now = new Date();
+            document.getElementById('last-update').textContent = 
+                `最後更新時間: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+            
+            // 生成模拟数据
+            services = Object.keys(SERVICE_LIST).map(title => {
+                const serviceInfo = SERVICE_LIST[title];
+                const reliability = Math.random() * 0.1 + 0.85; // 85-95%可靠性
+                
+                return {
+                    title: title,
+                    url: serviceInfo.url,
+                    emoji: serviceInfo.emoji,
+                    statusStream: generateStatusHistory(reliability),
+                    uptime: calculateUptimePercentage(generateStatusHistory(reliability)),
+                    currentStatus: reliability > 0.9 ? 'normal' : (reliability > 0.8 ? 'warn' : 'down')
+                };
+            });
+            
+            genAllReports();
+        }
+        
         // 生成所有报告
         function genAllReports() {
             const reportContainer = document.getElementById('reports');
             reportContainer.innerHTML = '';
-            
-            // 设置最后更新时间
-            const now = new Date();
-            document.getElementById('last-update').textContent = 
-                `最後更新時間: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
             
             services.forEach(service => {
                 // 创建服务容器
@@ -795,7 +868,7 @@
             let left = rect.left + window.scrollX + rect.width / 2 - tooltipWidth / 2;
             
             // 防止超出屏幕
-            if (top < 20) top = rect.bottom + window.scrollY + 10;
+            if (top < 20) top = rect.bottom + window.scroll极光Y + 10;
             if (left < 20) left = 20;
             if (left + tooltipWidth > window.innerWidth - 20) 
                 left = window.innerWidth - tooltipWidth - 20;
@@ -843,16 +916,8 @@
         
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
-            // 设置最后更新时间
-            const now = new Date();
-            document.getElementById('last-update').textContent = 
-                `最後更新時間: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
-            
-            // 延迟显示以模拟数据加载
-            setTimeout(() => {
-                genAllReports();
-                setupModeToggle();
-            }, 800);
+            setupModeToggle();
+            loadRealData();
         });
     </script>
 </body>

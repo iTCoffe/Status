@@ -32,6 +32,7 @@
       :root {
         --bg-primary: #ffffff;
         --text-primary: #333333;
+        --text-secondary: #666666;
         --panel-bg: #f8f9fa;
         --panel-border: #eaeaea;
         --footer-text: #666;
@@ -39,16 +40,22 @@
         --status-up: #2ecc71;
         --status-down: #e74c3c;
         --status-degraded: #f39c12;
+        --link-color: #0069d9;
       }
       
       @media (prefers-color-scheme: dark) {
         :root {
           --bg-primary: #121212;
-          --text-primary: #e0e0e0;
+          --text-primary: #ffffff; /* 确保主要文字为白色 */
+          --text-secondary: #bbbbbb;
           --panel-bg: #1e1e1e;
           --panel-border: #333;
-          --footer-text: #aaa;
+          --footer-text: #dddddd;
           --tooltip-bg: rgba(30,30,30,0.95);
+          --status-up: #27ae60;
+          --status-down: #c0392b;
+          --status-degraded: #d35400;
+          --link-color: #4da6ff;
         }
       }
       
@@ -78,14 +85,59 @@
         color: var(--text-primary);
       }
       
+      .headline span,
+      .statusTitle,
+      .statusHeadline,
+      .sectionUrl,
+      .statusUptime,
+      .tooltipDateTime,
+      .tooltipStatus,
+      .tooltipDescription {
+        color: var(--text-primary);
+      }
+      
+      .statusSubtitle {
+        color: var(--text-secondary);
+      }
+      
+      a {
+        color: var(--link-color);
+        transition: color 0.3s;
+      }
+      
+      a:hover {
+        opacity: 0.8;
+      }
+      
       /* 暗黑模式特定覆盖 */
       body.dark-mode {
         --bg-primary: #121212;
-        --text-primary: #e0e0e0;
+        --text-primary: #ffffff; /* 确保主要文字为白色 */
+        --text-secondary: #bbbbbb;
         --panel-bg: #1e1e1e;
         --panel-border: #333;
-        --footer-text: #aaa;
+        --footer-text: #dddddd;
         --tooltip-bg: rgba(30,30,30,0.95);
+        --status-up: #27ae60;
+        --status-down: #c0392b;
+        --status-degraded: #d35400;
+        --link-color: #4da6ff;
+      }
+      
+      /* 状态颜色处理 */
+      .statusSquare.up, .statusHeadline.up {
+        background-color: var(--status-up) !important;
+        color: white !important;
+      }
+      
+      .statusSquare.down, .statusHeadline.down {
+        background-color: var(--status-down) !important;
+        color: white !important;
+      }
+      
+      .statusSquare.degraded, .statusHeadline.degraded {
+        background-color: var(--status-degraded) !important;
+        color: white !important;
       }
     </style>
   </head>

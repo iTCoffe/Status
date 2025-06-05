@@ -1,0 +1,109 @@
+{"metadata": {
+"generatedAt": "2025-06-05T06:43:39+0000",
+"totalServices": 11,
+"commitEnabled": true,
+"configFile": "urls.cfg",
+"version": "1.1"
+},
+"services":
+[
+    {
+        "name": "5i計劃通行·樂玩公社㊙️",
+        "url": "https://vlink.cc/5iClub",
+        "status": "success",
+        "httpStatus": "200",
+        "responseTime": 793,
+        "lastChecked": "2025-06-05T06:42:47+0000"
+    }
+,
+    {
+        "name": "“閒”是生活的標點",
+        "url": "https://loong.shrimp.netlib.re",
+        "status": "success",
+        "httpStatus": "200",
+        "responseTime": 341,
+        "lastChecked": "2025-06-05T06:42:47+0000"
+    }
+,
+    {
+        "name": "ADS拦截规则·CHINESE",
+        "url": "https://adrules.shrimp.netlib.re",
+        "status": "success",
+        "httpStatus": "200",
+        "responseTime": 389,
+        "lastChecked": "2025-06-05T06:42:48+0000"
+    }
+,
+    {
+        "name": "iTV·實時直播集萃🌟",
+        "url": "https://itv.shrimp.netlib.re",
+        "status": "success",
+        "httpStatus": "200",
+        "responseTime": 256,
+        "lastChecked": "2025-06-05T06:42:48+0000"
+    }
+,
+    {
+        "name": "WebView·盡享精彩瞬間",
+        "url": "https://live.shrimp.netlib.re",
+        "status": "success",
+        "httpStatus": "200",
+        "responseTime": 441,
+        "lastChecked": "2025-06-05T06:42:48+0000"
+    }
+,
+    {
+        "name": "Docker·镜像仓库",
+        "url": "https://docker.5iclub.cloudns.biz",
+        "status": "warning",
+        "httpStatus": "403",
+        "responseTime": 346,
+        "lastChecked": "2025-06-05T06:43:05+0000"
+    }
+,
+    {
+        "name": "简约·网址短链",
+        "url": "https://url.5iclub.cloudns.biz",
+        "status": "warning",
+        "httpStatus": "403",
+        "responseTime": 403,
+        "lastChecked": "2025-06-05T06:43:22+0000"
+    }
+,
+    {
+        "name": "GitHub·文件加速",
+        "url": "https://github.5iclub.cloudns.biz",
+        "status": "warning",
+        "httpStatus": "403",
+        "responseTime": 344,
+        "lastChecked": "2025-06-05T06:43:38+0000"
+    }
+,
+    {
+        "name": "自由观影·畅享精彩",
+        "url": "https://libretv.shrimp.hidns.co",
+        "status": "success",
+        "httpStatus": "200",
+        "responseTime": 363,
+        "lastChecked": "2025-06-05T06:43:39+0000"
+    }
+,
+    {
+        "name": "Blogspot·博客📛",
+        "url": "https://blog.shrimp.netlib.re",
+        "status": "success",
+        "httpStatus": "200",
+        "responseTime": 246,
+        "lastChecked": "2025-06-05T06:43:39+0000"
+    }
+,
+    {
+        "name": "服務監控🛎",
+        "url": "https://status.shrimp.netlib.re",
+        "status": "success",
+        "httpStatus": "200",
+        "responseTime": 565,
+        "lastChecked": "2025-06-05T06:43:39+0000"
+    }
+
+]

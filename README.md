@@ -4,6 +4,10 @@
 
 We tried various Status Pages out there, and built this as a fun little hobby project to make status pages as simple as possible.
 
+<p align="center">
+  <img src="https://iTaoPu.Github.io/言家稗子-标准色版.png" alt="微信公眾號" />
+</p>
+
 ## Demo
 
 - https://status.statsig.com

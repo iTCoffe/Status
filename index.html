@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>菜鳥驛站·服務監控</title>
@@ -46,7 +47,6 @@
     <script src="index.js"></script>
   </head>
   <body>
-    <!-- 新增主题切换按钮 -->
     <div class="theme-switcher">
       <button class="theme-btn active" data-theme="light" title="浅色模式">☀️</button>
       <button class="theme-btn" data-theme="dark" title="深色模式">🌙</button>
@@ -89,9 +89,7 @@
       </div>
     </div>
     <footer>
-      <a href="https://vlink.cc/CNiao"
-        >© 2022-2026 菜鳥驛站·樂玩公社</a
-      >
+      <a href="https://vlink.cc/CNiao" id="copyrightLink"></a>
     </footer>
     <script>
       // 主题切换功能
@@ -129,10 +127,23 @@
           });
         });
       }
+
+      // 新增：自动更新年份功能
+      function updateCopyrightYear() {
+        const startYear = 2022;
+        const currentYear = new Date().getFullYear();
+        const copyrightElem = document.getElementById('copyrightLink');
+        if (copyrightElem) {
+          // 如果当前年份大于起始年份，则显示范围，否则只显示起始年份
+          const yearDisplay = currentYear > startYear ? `${startYear}-${currentYear}` : startYear;
+          copyrightElem.textContent = `© ${yearDisplay} 蜂巢·隱曜`;
+        }
+      }
       
       // 初始化
       document.addEventListener('DOMContentLoaded', () => {
         setupThemeSwitcher();
+        updateCopyrightYear(); // 调用年份更新
         genAllReports();
       });
     </script>

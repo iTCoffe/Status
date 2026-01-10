@@ -43,6 +43,11 @@
       .theme-btn.active {
         background-color: rgba(0,0,0,0.2);
       }
+
+      /* 核心优化：隐藏监控的网址 */
+      .sectionUrl {
+        display: none !important;
+      }
     </style>
     <script src="index.js"></script>
   </head>
@@ -128,7 +133,7 @@
         }
       }
       
-      // 3. 修复弹窗位置 (固定在方格下方)
+      // 3. 修复弹窗位置 (固定在方格下方居中)
       function fixTooltipPosition() {
         const tooltip = document.getElementById('tooltip');
         document.addEventListener('mouseover', (e) => {
@@ -155,7 +160,7 @@
         }, true);
       }
 
-      // 4. 自动翻译动态内容 (无需修改 index.js)
+      // 4. 自动翻译动态内容
       function setupAutoTranslation() {
         const dictionary = {
           'Fully Operational': '系统运行正常',
@@ -180,13 +185,10 @@
           mutations.forEach((mutation) => {
             mutation.addedNodes.forEach((node) => {
               if (node.nodeType === 1) {
-                // 翻译标题状态
                 if (node.classList.contains('statusHeadline')) translateElement(node);
-                // 查找子元素中的状态
                 node.querySelectorAll('.statusHeadline, #tooltipStatus').forEach(translateElement);
               }
             });
-            // 监测弹窗内容变化
             if (mutation.target.id === 'tooltipStatus') translateElement(mutation.target);
           });
         });
@@ -199,7 +201,7 @@
         setupThemeSwitcher();
         updateCopyrightYear();
         fixTooltipPosition();
-        setupAutoTranslation(); // 启用自动翻译
+        setupAutoTranslation();
         genAllReports();
       });
     </script>

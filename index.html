@@ -44,12 +44,11 @@
         background-color: rgba(0,0,0,0.2);
       }
 
-      /* 核心修復：確保彈窗不會阻擋滑鼠事件並具備高層級 */
+      /* 修复：确保弹窗不会遮挡鼠标指针，防止闪烁 */
       #tooltip {
-        position: absolute; /* 必須是絕對定位 */
-        pointer-events: none; /* 防止彈窗擋住滑鼠導致閃爍 */
-        z-index: 9999;
-        transition: opacity 0.2s ease; /* 平滑顯示 */
+        position: absolute;
+        pointer-events: none; /* 核心：允许鼠标事件穿透弹窗 */
+        z-index: 10000;
       }
     </style>
     <script src="index.js"></script>
@@ -109,13 +108,10 @@
         const savedTheme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-        
         document.body.classList.add(initialTheme === 'dark' ? 'dark-theme' : 'light-theme');
-        
         themeBtns.forEach(btn => {
           btn.classList.toggle('active', btn.dataset.theme === initialTheme);
         });
-        
         themeBtns.forEach(btn => {
           btn.addEventListener('click', () => {
             const selectedTheme = btn.dataset.theme;
@@ -139,27 +135,24 @@
         }
       }
 
-      // 【修復核心】：彈窗跟隨滑鼠功能
-      function setupTooltipTracking() {
+      // 核心修复：弹窗实时跟踪鼠标位置
+      function setupTooltipFollow() {
         const tooltip = document.getElementById('tooltip');
         
         document.addEventListener('mousemove', (e) => {
-          // 只有當彈窗處於顯示狀態（opacity > 0）時才計算位置，節省性能
-          if (tooltip.style.opacity > 0 || getComputedStyle(tooltip).opacity > 0) {
-            const offset = 15; // 距離滑鼠指針的偏移量
-            
-            // 計算位置：鼠標當前座標 + 頁面滾動距離
-            let left = e.pageX + offset;
-            let top = e.pageY + offset;
+          // 仅当弹窗是显示状态时执行定位逻辑
+          if (tooltip.style.opacity > 0) {
+            const gap = 15; // 距离鼠标的间距
+            let posX = e.pageX + gap;
+            let posY = e.pageY + gap;
 
-            // 邊界檢查：防止彈窗超出屏幕右側
-            const tooltipWidth = tooltip.offsetWidth;
-            if (left + tooltipWidth > window.innerWidth + window.scrollX) {
-              left = e.pageX - tooltipWidth - offset;
+            // 边缘检测：防止弹窗超出右侧屏幕
+            if (posX + tooltip.offsetWidth > window.innerWidth) {
+              posX = e.pageX - tooltip.offsetWidth - gap;
             }
 
-            tooltip.style.left = left + 'px';
-            tooltip.style.top = top + 'px';
+            tooltip.style.left = posX + 'px';
+            tooltip.style.top = posY + 'px';
           }
         });
       }
@@ -168,7 +161,7 @@
       document.addEventListener('DOMContentLoaded', () => {
         setupThemeSwitcher();
         updateCopyrightYear();
-        setupTooltipTracking(); // 啟用修復後的跟隨邏輯
+        setupTooltipFollow(); // 运行弹窗修复
         genAllReports();
       });
     </script>

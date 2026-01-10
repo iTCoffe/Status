@@ -1,461 +1,86 @@
-* {
-  box-sizing: border-box;
-}
-
-html {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-body {
-  --bg-primary: #f5f6f8;
-  --text-primary: #3b3b3b;
-  --text-secondary: #7c7c7c;
-  --card-bg: #fff;
-  --card-shadow: rgba(0, 0, 0, 0.06);
-  --border-color: #ededed;
-  --header-accent: #f5f6f8;
-  --link-color: #194b7d;
-  --success-color: #4cae50;
-  --failure-color: #f44336;
-  --partial-color: #ff9800;
-  --nodata-color: #f8f8f8;
-  --tooltip-bg: #fff;
-  --tooltip-shadow: rgba(0, 0, 0, 0.12);
-  --separator-color: #eee;
-  --footer-text: #9c9c9c;
-  
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 300;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Helvetica Neue", "Ubuntu", sans-serif;
-  justify-content: center;
-  line-height: 22px;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-  transition: 
-    background-color 0.3s ease,
-    color 0.3s ease;
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    --bg-primary: #121212;
-    --text-primary: #e0e0e0;
-    --text-secondary: #a0a0a0;
-    --card-bg: #1e1e1e;
-    --card-shadow: rgba(0, 0, 0, 0.3);
-    --border-color: #2d2d2d;
-    --header-accent: #2d2d2d;
-    --link-color: #64b5f6;
-    --success-color: #388e3c;
-    --failure-color: #d32f2f;
-    --partial-color: #f57c00;
-    --nodata-color: #2a2a2a;
-    --tooltip-bg: #2d2d2d;
-    --tooltip-shadow: rgba(0, 0, 0, 0.4);
-    --separator-color: #333;
-    --footer-text: #a0a0a0;
+// 模拟每个服务的健康数据
+const SERVICES_DATA = [
+  {
+    name: "主站服务 (Main Website)",
+    url: "https://example.com",
+    // 模拟最近30天的状态：0: 正常, 1: 部分故障, 2: 严重故障, 3: 无数据
+    history: [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0]
+  },
+  {
+    name: "API 接口 (Public API)",
+    url: "https://api.example.com",
+    history: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
   }
+];
+
+const STATUS_MAP = {
+  0: { text: 'Operational', class: 'success', desc: '系统运行正常' },
+  1: { text: 'Degraded', class: 'partial', desc: '部分服务响应缓慢' },
+  2: { text: 'Down', class: 'failure', desc: '服务当前不可用' },
+  3: { text: 'No Data', class: 'nodata', desc: '无监控数据' }
+};
+
+function genAllReports() {
+  const reportsContainer = document.getElementById('reports');
+  const template = document.getElementById('statusContainerTemplate');
+  const squareTemplate = document.getElementById('statusSquareTemplate');
+
+  SERVICES_DATA.forEach(service => {
+    // 1. 克隆外层容器
+    const card = template.cloneNode(true);
+    card.id = "";
+    
+    // 计算当前状态（以最后一天为准）
+    const currentStatus = STATUS_MAP[service.history[service.history.length - 1]];
+    
+    // 2. 替换头部信息
+    let html = card.innerHTML
+      .replace('$title', service.name)
+      .replace(/\$url/g, service.url)
+      .replace('$status', currentStatus.text)
+      .replace('$color', currentStatus.class)
+      .replace('$upTime', '99.9%'); // 实际开发可根据 history 计算百分比
+    
+    card.innerHTML = html;
+
+    // 3. 生成 30 天的方块流
+    const streamContainer = document.createElement('div');
+    streamContainer.className = 'statusStreamContainer';
+
+    service.history.forEach((statusStep, index) => {
+      const square = squareTemplate.cloneNode(true);
+      const statusInfo = STATUS_MAP[statusStep];
+      
+      square.id = "";
+      square.className = `statusSquare ${statusInfo.class}`;
+      
+      // 绑定鼠标交互显示 Tooltip
+      square.onmouseenter = (e) => showTooltip(e, index, statusInfo);
+      square.onmouseleave = hideTooltip;
+      
+      streamContainer.appendChild(square);
+    });
+
+    card.appendChild(streamContainer);
+    reportsContainer.appendChild(card);
+  });
 }
 
-/* 手动切换主题的覆盖样式 */
-body.dark-theme {
-  --bg-primary: #121212;
-  --text-primary: #e0e0e0;
-  --text-secondary: #a0a0a0;
-  --card-bg: #1e1e1e;
-  --card-shadow: rgba(0, 0, 0, 0.3);
-  --border-color: #2d2d2d;
-  --header-accent: #2d2d2d;
-  --link-color: #64b5f6;
-  --success-color: #388e3c;
-  --failure-color: #d32f2f;
-  --partial-color: #f57c00;
-  --nodata-color: #2a2a2a;
-  --tooltip-bg: #2d2d2d;
-  --tooltip-shadow: rgba(0, 0, 0, 0.4);
-  --separator-color: #333;
-  --footer-text: #a0a0a0;
+function showTooltip(e, dayOffset, info) {
+  const tooltip = document.getElementById('tooltip');
+  const date = new Date();
+  date.setDate(date.getDate() - (29 - dayOffset));
+
+  document.getElementById('tooltipDateTime').innerText = date.toLocaleDateString();
+  document.getElementById('tooltipStatus').innerText = info.text;
+  document.getElementById('tooltipStatus').className = info.class;
+  document.getElementById('tooltipDescription').innerText = info.desc;
+
+  tooltip.style.opacity = "1";
+  tooltip.style.top = `${e.pageY - 120}px`;
+  tooltip.style.left = `${e.pageX - 120}px`;
 }
 
-body.light-theme {
-  --bg-primary: #f5f6f8;
-  --text-primary: #3b3b3b;
-  --text-secondary: #7c7c7c;
-  --card-bg: #fff;
-  --card-shadow: rgba(0, 0, 0, 0.06);
-  --border-color: #ededed;
-  --header-accent: #f5f6f8;
-  --link-color: #194b7d;
-  --success-color: #4cae50;
-  --failure-color: #f44336;
-  --partial-color: #ff9800;
-  --nodata-color: #f8f8f8;
-  --tooltip-bg: #fff;
-  --tooltip-shadow: rgba(0, 0, 0, 0.12);
-  --separator-color: #eee;
-  --footer-text: #9c9c9c;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-button,
-footer,
-input,
-textarea,
-.copyright,
-.button {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Helvetica Neue", "Ubuntu", sans-serif;
-  line-height: 125%;
-  color: var(--text-primary);
-}
-
-h1 {
-  font-size: 32px;
-  font-weight: bold;
-  margin: 0px;
-}
-
-h2 {
-  font-size: 28px;
-  font-weight: bold;
-  margin: 16px 0 8px 0;
-}
-
-h3 {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 8px 0 4px 0;
-}
-
-h4 {
-  font-size: 18px;
-  font-weight: 600;
-  margin-top: 5px;
-  margin-bottom: 4px;
-}
-
-h5 {
-  font-size: 16px;
-  font-weight: bold;
-  margin-top: 5px;
-  margin-bottom: 4px;
-}
-
-h6 {
-  font-size: 16px;
-  font-weight: bold;
-  margin-top: 5px;
-  margin-bottom: 4px;
-}
-
-a {
-  color: var(--link-color);
-  text-decoration: none;
-}
-
-.outlineButton,
-.button,
-button {
-  background-color: var(--link-color);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  padding: 10px 16px;
-  white-space: nowrap;
-}
-
-footer {
-  color: var(--footer-text);
-  margin: 40px;
-}
-
-footer a {
-  font-weight: bold;
-}
-
-.pageContainer {
-  padding: 30px 50px;
-  background-color: var(--card-bg);
-  box-shadow: 0px 6px 18px var(--card-shadow);
-  border-radius: 5px;
-  max-width: 900px;
-  width: 100%;
-  margin: 96px auto;
-  transition: 
-    background-color 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.headline {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.headline span {
-  background-color: var(--header-accent);
-  border-radius: 5px;
-  padding: 6px;
-  margin-left: 12px;
-  font-size: 16px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.reportContainer {
-  margin: 30px auto;
-  width: 100%;
-}
-
-.statusContainer {
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  padding-top: 20px;
-  text-align: left;
-  padding: 24px;
-  background-color: var(--card-bg);
-  transition: 
-    background-color 0.3s ease,
-    border-color 0.3s ease;
-}
-
-.statusContainer + .statusContainer {
-  border-top: 1px solid var(--separator-color);
-  margin-top: 30px;
-}
-
-.statusStreamContainer {
-  display: flex;
-  justify-content: space-between;
-}
-
-.statusSquare {
-  border-radius: 3px;
-  height: 30px;
-  min-width: 8px;
-  width: 100%;
-}
-
-.statusSquare + .statusSquare {
-  margin-left: 6px;
-}
-
-.sectionUrl {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.statusTitle {
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-
-.statusHeader {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 2px;
-}
-
-.statusSubtitle {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 12px;
-  color: var(--text-secondary);
-}
-
-.statusHeadline {
-  padding: 4px 8px;
-  border-radius: 15px;
-  font-size: 12px;
-  font-weight: 700;
-  margin-left: 12px;
-}
-
-.statusUptime {
-  flex: 1;
-  text-align: right;
-  color: var(--text-secondary);
-  font-size: 12px;
-}
-
-.uptimeContainer {
-  color: var(--text-secondary);
-  display: flex;
-  margin-top: 8px;
-  font-size: 12px;
-}
-
-.uptimeContainer hr {
-  border: none;
-  border-top: 1px dashed var(--separator-color);
-  width: 100%;
-  margin: 10px;
-}
-
-.success {
-  background-color: var(--success-color);
-  color: white;
-}
-
-.failure {
-  background-color: var(--failure-color);
-  color: white;
-}
-
-.nodata {
-  background-color: var(--nodata-color);
-  color: #ccc;
-}
-
-.partial {
-  background-color: var(--partial-color);
-  color: white;
-}
-
-.tooltip {
-  background-color: var(--tooltip-bg);
-  box-shadow: 0px 6px 18px var(--tooltip-shadow);
-  border-radius: 4px;
-  color: var(--text-primary);
-  font-size: 12px;
-  line-height: 18px;
-  padding: 16px;
-  position: absolute;
-  text-align: left;
-  z-index: 100;
-  width: 240px;
-  transition: 
-    opacity 0.2s,
-    background-color 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.tooltip .tooltipArrow {
-  position: absolute;
-  bottom: 100%;
-  width: 4px;
-  text-align: center;
-  border: 4px solid transparent;
-  border-bottom-color: var(--tooltip-bg);
-  left: 50%;
-  margin-left: -2px;
-  transition: border-color 0.3s ease;
-}
-
-.tooltip .tooltipDateTime {
-  font-size: 12px;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
-.tooltip .tooltipKey {
-  color: var(--text-secondary);
-  font-size: 10px;
-}
-
-.tooltip .tooltipDescription {
-  margin-top: 12px;
-  font-size: 14px;
-  color: var(--text-primary);
-}
-
-.tooltip #tooltipStatus {
-  padding: 4px 8px;
-  border-radius: 15px;
-  font-size: 12px;
-  font-weight: bold;
-  margin-top: 6px;
-  display: inline-block;
-}
-
-.tooltip hr {
-  border: none;
-  border-top: 1px solid var(--border-color);
-  margin-top: 16px;
-}
-
-.theme-switcher {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 50px;
-  padding: 5px;
-  display: flex;
-  z-index: 1000;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.theme-btn {
-  background: transparent;
-  border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.theme-btn.active {
-  background: var(--header-accent);
-}
-
-@media screen and (max-width: 800px) {
-  .pageContainer {
-    padding: 30px 20px;
-    margin: 0 auto 40px auto;
-  }
-
-  .statusHeader,
-  .statusSubtitle {
-    display: block;
-  }
-
-  .statusHeadline,
-  .sectionUrl,
-  .statusUptime {
-    margin-left: 0;
-    margin-top: 8px;
-    text-align: left;
-  }
-
-  .statusTitle,
-  .statusHeadline {
-    display: inline-block;
-  }
-
-  .statusSquare + .statusSquare {
-    margin-left: 1px;
-  }
-
-  .statusSquare {
-    min-width: 4px;
-    width: 100%;
-  }
-  
-  .theme-switcher {
-    top: 10px;
-    right: 10px;
-  }
+function hideTooltip() {
+  document.getElementById('tooltip').style.opacity = "0";
 }

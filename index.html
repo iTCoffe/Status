@@ -1,70 +1,76 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Status Page</title>
+    <title>蜂巢·服務監控</title>
+    <link rel="icon" href="https://iTCoffe.Github.io/Status/logo.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="index.css" />
     <style>
-      /* 完全保留你提供的 CSS */
-      * { box-sizing: border-box; }
-      html { height: 100%; display: flex; flex-direction: column; }
-      body {
-        background-color: #f5f6f8; color: #3b3b3b; font-size: 14px; font-weight: 300;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", "Ubuntu", sans-serif;
-        justify-content: center; line-height: 22px; margin: 0; padding: 0; text-align: center; transition: opacity 0.3s;
+      /* 新增主题切换按钮样式 */
+      .theme-switcher {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        background: rgba(255,255,255,0.8);
+        border-radius: 24px;
+        padding: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        z-index: 1000;
       }
-      h1, h2, h3, h4, h5, h6, button, footer, input, textarea, .copyright, .button {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", "Ubuntu", sans-serif;
-        line-height: 125%;
+      
+      .dark-theme .theme-switcher {
+        background: rgba(0,0,0,0.8);
       }
-      a { color: #194b7d; text-decoration: none; }
-      footer { color: #9c9c9c; margin: 40px; }
-      footer a { font-weight: bold; }
-      .pageContainer {
-        padding: 30px 50px; background-color: #fff; box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.06);
-        border-radius: 5px; max-width: 900px; width: 100%; margin: 96px auto;
+      
+      .theme-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px 12px;
+        margin: 0 2px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        font-size: 20px;
+        line-height: 1;
       }
-      .headline { display: flex; align-items: center; justify-content: center; }
-      .headline span {
-        background-color: #f5f6f8; border-radius: 5px; padding: 6px; margin-left: 12px;
-        font-size: 16px; font-weight: 700; text-transform: uppercase;
+      
+      .theme-btn:hover {
+        background-color: rgba(0,0,0,0.1);
+        transform: scale(1.1);
       }
-      .reportContainer { margin: 30px auto; width: 100%; }
-      .statusContainer { border: 1px solid #ededed; border-radius: 5px; padding: 24px; text-align: left; }
-      .statusContainer + .statusContainer { border-top: 1px solid #eee; margin-top: 30px; }
-      .statusStreamContainer { display: flex; justify-content: space-between; }
-      .statusSquare { border-radius: 3px; height: 30px; min-width: 8px; width: 100%; cursor: pointer; }
-      .statusSquare + .statusSquare { margin-left: 6px; }
-      .statusTitle { text-transform: uppercase; }
-      .statusHeader { display: flex; flex-direction: row; align-items: center; margin-bottom: 2px; }
-      .statusSubtitle { display: flex; flex-direction: row; align-items: center; margin-bottom: 12px; }
-      .statusHeadline { color: #eee; padding: 4px 8px; border-radius: 15px; font-size: 12px; font-weight: 700; margin-left: 12px; }
-      .statusUptime { flex: 1; text-align: right; color: #7c7c7c; font-size: 12px; }
-      .success { background-color: #4cae50; color: #fff; }
-      .failure { background-color: #f44336; color: #fff; }
-      .nodata { background-color: #f8f8f8; color: #ccc; }
-      .partial { background-color: #ff9800; color: #fff; }
-      .tooltip {
-        background-color: #fff; box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.12);
-        border-radius: 4px; color: #3b3b3b; font-size: 12px; line-height: 18px;
-        padding: 16px; position: absolute; text-align: left; z-index: 100; width: 240px;
-        transition: opacity 0.2s; pointer-events: none;
+      
+      .theme-btn.active {
+        background-color: rgba(0,0,0,0.2);
       }
-      .tooltip .tooltipDateTime { font-size: 12px; color: #7c7c7c; text-transform: uppercase; font-weight: 600; }
-      .tooltip #tooltipStatus { padding: 4px 8px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-top: 6px; display: inline-block; }
-      .tooltip hr { border: none; border-top: 1px solid #ededed; margin-top: 16px; }
-      @media screen and (max-width: 800px) {
-        .pageContainer { padding: 30px 20px; margin: 0 auto 40px auto; }
-        .statusSquare + .statusSquare { margin-left: 1px; }
-        .statusSquare { min-width: 4px; }
+
+      /* 核心修復：確保彈窗不會阻擋滑鼠事件並具備高層級 */
+      #tooltip {
+        position: absolute; /* 必須是絕對定位 */
+        pointer-events: none; /* 防止彈窗擋住滑鼠導致閃爍 */
+        z-index: 9999;
+        transition: opacity 0.2s ease; /* 平滑顯示 */
       }
     </style>
+    <script src="index.js"></script>
   </head>
   <body>
+    <div class="theme-switcher">
+      <button class="theme-btn active" data-theme="light" title="浅色模式">☀️</button>
+      <button class="theme-btn" data-theme="dark" title="深色模式">🌙</button>
+    </div>
+
     <div class="pageContainer">
       <div class="headline">
+        <img src="logo.png" alt="Logo" width="200px" />
         <span> System Status </span>
       </div>
       <div id="reports" class="reportContainer"></div>
+      
+      <div class="footer" style="text-align: center; margin-top: 20px; padding: 20px; font-size: 14px; opacity: 0.6;">
+        <span id="copyrightLink"></span>
+      </div>
+
       <div id="tooltip" class="tooltip" style="opacity: 0">
         <div id="tooltipArrow" class="tooltipArrow"></div>
         <div id="tooltipDateTime" class="tooltipDateTime"></div>
@@ -73,8 +79,16 @@
         <div id="tooltipDescription" class="tooltipDescription"></div>
       </div>
       <div id="templates" style="display: none">
-        <div id="statusSquareTemplate" class="statusSquare $color" data-status="$color"></div>
-        <div id="statusStreamContainerTemplate" class="statusStreamContainer"></div>
+        <div
+          id="statusSquareTemplate"
+          class="statusSquare $color"
+          data-status="$color"
+        ></div>
+        <div id="statusLineTemplate" class="statusLine"></div>
+        <div
+          id="statusStreamContainerTemplate"
+          class="statusStreamContainer"
+        ></div>
         <div id="statusContainerTemplate" class="statusContainer">
           <div class="statusHeader">
             <h6 class="statusTitle">$title&nbsp;</h6>
@@ -87,175 +101,76 @@
         </div>
       </div>
     </div>
-    <footer>
-      Forked from <a href="https://github.com/statsig-io/statuspage/">Statsig's Status Page</a>.
-    </footer>
 
     <script>
-      const maxDays = 30;
-
-      // 1. 修复后的 showTooltip (仅添加了 px 单位和精确坐标计算)
-      let tooltipTimeout = null;
-      function showTooltip(element, key, date, color) {
-        clearTimeout(tooltipTimeout);
-        const toolTipDiv = document.getElementById("tooltip");
-
-        document.getElementById("tooltipDateTime").innerText = date.toDateString();
-        document.getElementById("tooltipDescription").innerText = getStatusDescriptiveText(color);
-
-        const statusDiv = document.getElementById("tooltipStatus");
-        statusDiv.innerText = getStatusText(color);
-        statusDiv.className = color;
-
-        const rect = element.getBoundingClientRect();
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-
-        // 核心修复：添加 "px" 单位并使用 getBoundingClientRect
-        toolTipDiv.style.top = (rect.top + scrollTop + rect.height + 10) + "px";
-        toolTipDiv.style.left = (rect.left + scrollLeft + (rect.width / 2) - (toolTipDiv.offsetWidth / 2)) + "px";
-        toolTipDiv.style.opacity = "1";
-      }
-
-      function hideTooltip() {
-        tooltipTimeout = setTimeout(() => {
-          document.getElementById("tooltip").style.opacity = "0";
-        }, 1000);
-      }
-
-      // --- 以下完全保留原有代码逻辑 ---
-      async function genReportLog(container, key, url) {
-        const response = await fetch("logs/" + key + "_report.log");
-        let statusLines = "";
-        if (response.ok) { statusLines = await response.text(); }
-        const normalized = normalizeData(statusLines);
-        const statusStream = constructStatusStream(key, url, normalized);
-        container.appendChild(statusStream);
-      }
-
-      function constructStatusStream(key, url, uptimeData) {
-        let streamContainer = templatize("statusStreamContainerTemplate");
-        for (var ii = maxDays - 1; ii >= 0; ii--) {
-          let line = constructStatusLine(key, ii, uptimeData[ii]);
-          streamContainer.appendChild(line);
-        }
-        const lastSet = uptimeData[0];
-        const color = getColor(lastSet);
-        const container = templatize("statusContainerTemplate", {
-          title: key, url: url, color: color,
-          status: getStatusText(color), upTime: uptimeData.upTime,
+      // 主题切换功能
+      function setupThemeSwitcher() {
+        const themeBtns = document.querySelectorAll('.theme-btn');
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+        
+        document.body.classList.add(initialTheme === 'dark' ? 'dark-theme' : 'light-theme');
+        
+        themeBtns.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.theme === initialTheme);
         });
-        container.appendChild(streamContainer);
-        return container;
+        
+        themeBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const selectedTheme = btn.dataset.theme;
+            document.body.classList.remove('light-theme', 'dark-theme');
+            document.body.classList.add(selectedTheme === 'dark' ? 'dark-theme' : 'light-theme');
+            themeBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            localStorage.setItem('theme', selectedTheme);
+          });
+        });
       }
 
-      function constructStatusLine(key, relDay, upTimeArray) {
-        let date = new Date();
-        date.setDate(date.getDate() - relDay);
-        return constructStatusSquare(key, date, upTimeArray);
-      }
-
-      function getColor(uptimeVal) {
-        return uptimeVal == null ? "nodata" : uptimeVal == 1 ? "success" : uptimeVal < 0.3 ? "failure" : "partial";
-      }
-
-      function constructStatusSquare(key, date, uptimeVal) {
-        const color = getColor(uptimeVal);
-        let square = templatize("statusSquareTemplate", { color: color });
-        const show = () => { showTooltip(square, key, date, color); };
-        square.addEventListener("mouseover", show);
-        square.addEventListener("mousedown", show);
-        square.addEventListener("mouseout", hideTooltip);
-        return square;
-      }
-
-      let cloneId = 0;
-      function templatize(templateId, parameters) {
-        let clone = document.getElementById(templateId).cloneNode(true);
-        clone.id = "template_clone_" + cloneId++;
-        if (!parameters) return clone;
-        applyTemplateSubstitutions(clone, parameters);
-        return clone;
-      }
-
-      function applyTemplateSubstitutions(node, parameters) {
-        const attributes = node.getAttributeNames();
-        for (var ii = 0; ii < attributes.length; ii++) {
-          const attr = attributes[ii];
-          const attrVal = node.getAttribute(attr);
-          node.setAttribute(attr, templatizeString(attrVal, parameters));
-        }
-        if (node.childElementCount == 0) {
-          node.innerText = templatizeString(node.innerText, parameters);
-        } else {
-          Array.from(node.children).forEach((n) => { applyTemplateSubstitutions(n, parameters); });
+      // 自动更新年份功能
+      function updateCopyrightYear() {
+        const startYear = 2022;
+        const currentYear = new Date().getFullYear();
+        const copyrightElem = document.getElementById('copyrightLink');
+        if (copyrightElem) {
+          const yearDisplay = currentYear > startYear ? `${startYear}-${currentYear}` : startYear;
+          copyrightElem.textContent = `© ${yearDisplay} 蜂巢·隱曜`;
         }
       }
 
-      function templatizeString(text, parameters) {
-        if (parameters) {
-          for (const [key, val] of Object.entries(parameters)) {
-            text = text.replaceAll("$" + key, val);
+      // 【修復核心】：彈窗跟隨滑鼠功能
+      function setupTooltipTracking() {
+        const tooltip = document.getElementById('tooltip');
+        
+        document.addEventListener('mousemove', (e) => {
+          // 只有當彈窗處於顯示狀態（opacity > 0）時才計算位置，節省性能
+          if (tooltip.style.opacity > 0 || getComputedStyle(tooltip).opacity > 0) {
+            const offset = 15; // 距離滑鼠指針的偏移量
+            
+            // 計算位置：鼠標當前座標 + 頁面滾動距離
+            let left = e.pageX + offset;
+            let top = e.pageY + offset;
+
+            // 邊界檢查：防止彈窗超出屏幕右側
+            const tooltipWidth = tooltip.offsetWidth;
+            if (left + tooltipWidth > window.innerWidth + window.scrollX) {
+              left = e.pageX - tooltipWidth - offset;
+            }
+
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
           }
-        }
-        return text;
+        });
       }
-
-      function getStatusText(color) {
-        return color == "nodata" ? "No Data Available" : color == "success" ? "Fully Operational" : color == "failure" ? "Major Outage" : color == "partial" ? "Partial Outage" : "Unknown";
-      }
-
-      function getStatusDescriptiveText(color) {
-        return color == "nodata" ? "No Data Available: Health check was not performed." : color == "success" ? "No downtime recorded on this day." : color == "failure" ? "Major outages recorded on this day." : color == "partial" ? "Partial outages recorded on this day." : "Unknown";
-      }
-
-      function normalizeData(statusLines) {
-        const rows = statusLines.split("\n");
-        const dateNormalized = splitRowsByDate(rows);
-        let relativeDateMap = {};
-        const now = Date.now();
-        for (const [key, val] of Object.entries(dateNormalized)) {
-          if (key == "upTime") continue;
-          const relDays = getRelativeDays(now, new Date(key).getTime());
-          relativeDateMap[relDays] = (val && val.length > 0) ? val.reduce((a, v) => a + v) / val.length : null;
-        }
-        relativeDateMap.upTime = dateNormalized.upTime;
-        return relativeDateMap;
-      }
-
-      function getRelativeDays(date1, date2) {
-        return Math.floor(Math.abs((date1 - date2) / (24 * 3600 * 1000)));
-      }
-
-      function splitRowsByDate(rows) {
-        let dateValues = {};
-        let sum = 0, count = 0;
-        for (var ii = 0; ii < rows.length; ii++) {
-          const row = rows[ii];
-          if (!row) continue;
-          const [dateTimeStr, resultStr] = row.split(",", 2);
-          const dateTime = new Date(Date.parse(dateTimeStr.replace(/-/g, "/") + " GMT"));
-          const dateStr = dateTime.toDateString();
-          if (!dateValues[dateStr]) dateValues[dateStr] = [];
-          let result = resultStr.trim() == "success" ? 1 : 0;
-          sum += result; count++;
-          dateValues[dateStr].push(result);
-        }
-        dateValues.upTime = count ? ((sum / count) * 100).toFixed(2) + "%" : "--%";
-        return dateValues;
-      }
-
-      async function genAllReports() {
-        const response = await fetch("urls.cfg");
-        const configText = await response.text();
-        const configLines = configText.split("\n");
-        for (let ii = 0; ii < configLines.length; ii++) {
-          const [key, url] = configLines[ii].split("=");
-          if (key && url) await genReportLog(document.getElementById("reports"), key.trim(), url.trim());
-        }
-      }
-
-      genAllReports();
+      
+      // 初始化
+      document.addEventListener('DOMContentLoaded', () => {
+        setupThemeSwitcher();
+        updateCopyrightYear();
+        setupTooltipTracking(); // 啟用修復後的跟隨邏輯
+        genAllReports();
+      });
     </script>
   </body>
 </html>

@@ -55,7 +55,7 @@
     <div class="pageContainer">
       <div class="headline">
         <img src="logo.png" alt="Logo" width="200px" />
-        <span> System Status </span>
+        <span> 系统状态 </span>
       </div>
       <div id="reports" class="reportContainer"></div>
       
@@ -88,7 +88,7 @@
           </div>
           <div class="statusSubtitle">
             <div class="sectionUrl"><a href="$url">$url</a></div>
-            <div class="statusUptime">$upTime in the last 30 days</div>
+            <div class="statusUptime">最近 30 天内上线率 $upTime</div>
           </div>
         </div>
       </div>
@@ -98,31 +98,46 @@
       // 主题切换功能
       function setupThemeSwitcher() {
         const themeBtns = document.querySelectorAll('.theme-btn');
+        
+        // 检查本地存储和系统偏好
         const savedTheme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // 确定初始主题
         const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
         document.body.classList.add(initialTheme === 'dark' ? 'dark-theme' : 'light-theme');
+        
+        // 设置活动按钮状态
         themeBtns.forEach(btn => {
           btn.classList.toggle('active', btn.dataset.theme === initialTheme);
         });
+        
+        // 添加按钮点击事件
         themeBtns.forEach(btn => {
           btn.addEventListener('click', () => {
             const selectedTheme = btn.dataset.theme;
+            
+            // 更新body类
             document.body.classList.remove('light-theme', 'dark-theme');
             document.body.classList.add(selectedTheme === 'dark' ? 'dark-theme' : 'light-theme');
+            
+            // 更新按钮状态
             themeBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            
+            // 保存到本地存储
             localStorage.setItem('theme', selectedTheme);
           });
         });
       }
 
-      // 自动更新年份功能
+      // 新增：自动更新年份功能
       function updateCopyrightYear() {
         const startYear = 2022;
         const currentYear = new Date().getFullYear();
         const copyrightElem = document.getElementById('copyrightLink');
         if (copyrightElem) {
+          // 如果当前年份大于起始年份，则显示范围，否则只显示起始年份
           const yearDisplay = currentYear > startYear ? `${startYear}-${currentYear}` : startYear;
           copyrightElem.textContent = `© ${yearDisplay} 蜂巢·隱曜`;
         }
@@ -163,7 +178,7 @@
 
               tooltip.style.left = finalLeft + 'px';
               tooltip.style.top = targetTop + 'px';
-              // 修正小箭头的偏移（如果有），让它始终指向方格
+              // 修正小箭头的偏移，让它始终指向方格
               const arrow = document.getElementById('tooltipArrow');
               if (arrow) {
                 const arrowOffset = (rect.left + scrollX + rect.width/2) - finalLeft;
@@ -177,7 +192,7 @@
       // 初始化
       document.addEventListener('DOMContentLoaded', () => {
         setupThemeSwitcher();
-        updateCopyrightYear();
+        updateCopyrightYear(); // 调用年份更新
         fixTooltipPosition(); // 运行优化后的逻辑
         genAllReports();
       });

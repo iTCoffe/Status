@@ -143,23 +143,25 @@
         }
       }
       
-      // 修復：彈窗位置跟隨鼠標
+      // 修复弹窗位置逻辑
       function fixTooltipPosition() {
         const tooltip = document.getElementById('tooltip');
-        // 僅添加鼠標移動監聽
-        document.addEventListener('mousemove', (e) => {
-          if (tooltip.style.opacity > 0) {
-            tooltip.style.left = (e.pageX + 10) + 'px';
-            tooltip.style.top = (e.pageY + 10) + 'px';
+        // 监听鼠标进入方格的事件（利用事件冒泡）
+        document.addEventListener('mouseover', (e) => {
+          if (e.target.classList.contains('statusSquare')) {
+            const rect = e.target.getBoundingClientRect();
+            // 将弹窗定位在方格正下方（方格底部 y 轴 + 滚动偏移）
+            tooltip.style.left = (rect.left + window.scrollX) + 'px';
+            tooltip.style.top = (rect.bottom + window.scrollY + 10) + 'px';
           }
-        });
+        }, true);
       }
 
       // 初始化
       document.addEventListener('DOMContentLoaded', () => {
         setupThemeSwitcher();
         updateCopyrightYear(); // 调用年份更新
-        fixTooltipPosition(); // 呼叫修復函數
+        fixTooltipPosition(); // 修复弹窗位置
         genAllReports();
       });
     </script>

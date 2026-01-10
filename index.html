@@ -8,15 +8,9 @@
     <style>
       /* 主题切换按钮样式 */
       .theme-switcher {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        display: flex;
-        background: rgba(255,255,255,0.8);
-        border-radius: 24px;
-        padding: 4px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        z-index: 1000;
+        position: fixed; top: 20px; right: 20px; display: flex;
+        background: rgba(255,255,255,0.8); border-radius: 24px; padding: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000;
       }
       .dark-theme .theme-switcher { background: rgba(0,0,0,0.8); }
       .theme-btn {
@@ -27,7 +21,7 @@
       .theme-btn:hover { background-color: rgba(0,0,0,0.1); transform: scale(1.1); }
       .theme-btn.active { background-color: rgba(0,0,0,0.2); }
 
-      /* 弹窗定位修正 */
+      /* 弹窗定位修正：确保不会被鼠标遮挡 */
       #tooltip { position: absolute; pointer-events: none; z-index: 10000; }
     </style>
     <script src="index.js"></script>
@@ -105,7 +99,7 @@
         }
       }
       
-      // 3. 修复弹窗位置 (固定在方格下方)
+      // 3. 修复弹窗位置 (固定在方格下方居中)
       function fixTooltipPosition() {
         const tooltip = document.getElementById('tooltip');
         document.addEventListener('mouseover', (e) => {
@@ -126,7 +120,7 @@
         }, true);
       }
 
-      // 4. 内容修改器：翻译 + 动态网址伪装
+      // 4. 内容翻译器 + 网址伪装
       function setupContentModifier() {
         const dictionary = {
           'Fully Operational': '系统运行正常',
@@ -135,6 +129,8 @@
           'Partial Outage': '部分故障',
           'Major Outage': '严重故障',
           'Maintenance': '维护中',
+          'No Data Available': '暂无可用数据',
+          'No data': '暂无数据',
           'Up': '在线',
           'Down': '离线'
         };
@@ -143,7 +139,7 @@
         // 键名：你在 urls.cfg 中定义的显示标题（Title）
         // 键值：你想要显示的伪装网址
         const urlMap = {
-          'i計劃通行·樂玩公社㊙️': 'https://vlink.cc/CNiao',
+          '蜂巢·樂玩公社㊙️': 'https://vlink.cc/CNiao',
           '“閒”是生活的標點': 'https://loong.ifanr.pp.ua',
           'ADS拦截规则·CHINESE': 'https://adrules.ifanr.pp.ua',
           'GKD規則·CHINESE': 'https://icloud.ifanr.pp.ua',
@@ -160,48 +156,56 @@
           '服務監控🛎': 'https://status.ifanr.pp.ua' // 没匹配到时的默认地址
         };
 
-        const modifyElement = (container) => {
-          // A. 翻译状态文本
-          container.querySelectorAll('.statusHeadline, #tooltipStatus').forEach(el => {
-            const text = el.textContent.trim();
-            if (dictionary[text]) el.textContent = dictionary[text];
-          });
+        const modifyElement = (node) => {
+          if (node.nodeType === 3) { // 文本节点
+            const text = node.textContent.trim();
+            if (dictionary[text]) node.textContent = dictionary[text];
+            return;
+          }
 
-          // B. 伪装网址逻辑
-          const statusContainer = container.closest('.statusContainer');
-          if (statusContainer) {
-            const titleEl = statusContainer.querySelector('.statusTitle');
-            const urlLink = statusContainer.querySelector('.sectionUrl a');
-            
-            if (titleEl && urlLink) {
-              const serviceTitle = titleEl.textContent.trim();
-              // 根据标题查找伪装网址，找不到则用 Default
-              const maskedUrl = urlMap[serviceTitle] || urlMap['Default'];
-              
-              urlLink.textContent = maskedUrl;
-              urlLink.href = "javascript:void(0);"; // 禁止跳转保护真实地址
+          if (node.nodeType === 1) { // 元素节点
+            // A. 处理翻译
+            const text = node.textContent.trim();
+            if (dictionary[text]) {
+                // 如果是弹窗内容，直接修改
+                if (node.id === 'tooltipStatus' || node.classList.contains('statusHeadline')) {
+                    node.textContent = dictionary[text];
+                }
             }
+
+            // B. 处理网址伪装
+            if (node.classList.contains('statusContainer')) {
+                const titleEl = node.querySelector('.statusTitle');
+                const urlLink = node.querySelector('.sectionUrl a');
+                if (titleEl && urlLink) {
+                    const maskedUrl = urlMap[titleEl.textContent.trim()] || urlMap['Default'];
+                    urlLink.textContent = maskedUrl;
+                    urlLink.href = "javascript:void(0);";
+                }
+            }
+            
+            // 递归子节点
+            node.childNodes.forEach(modifyElement);
           }
         };
 
         const observer = new MutationObserver((mutations) => {
           mutations.forEach((mutation) => {
-            mutation.addedNodes.forEach((node) => {
-              if (node.nodeType === 1) {
-                // 如果是新添加的状态块，执行修改
-                if (node.classList.contains('statusContainer')) modifyElement(node);
-                node.querySelectorAll('.statusContainer').forEach(modifyElement);
-              }
-            });
-            // 处理弹窗内的翻译
-            if (mutation.target.id === 'tooltipStatus') {
-              const text = mutation.target.textContent.trim();
-              if (dictionary[text]) mutation.target.textContent = dictionary[text];
+            // 监听节点添加
+            mutation.addedNodes.forEach(modifyElement);
+            // 监听文本变化（用于弹窗内容更新）
+            if (mutation.type === 'characterData' || (mutation.target.id === 'tooltipStatus')) {
+                const text = mutation.target.textContent.trim();
+                if (dictionary[text]) mutation.target.textContent = dictionary[text];
             }
           });
         });
 
-        observer.observe(document.body, { childList: true, subtree: true });
+        observer.observe(document.body, { 
+            childList: true, 
+            subtree: true, 
+            characterData: true 
+        });
       }
 
       // 初始化

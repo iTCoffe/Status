@@ -88,112 +88,118 @@
           </div>
           <div class="statusSubtitle">
             <div class="sectionUrl"><a href="$url">$url</a></div>
-            <div class="statusUptime">最近 30 天内上线率 $upTime</div>
+            <div class="statusUptime">最近 30 天上线率 $upTime</div>
           </div>
         </div>
       </div>
     </div>
 
     <script>
-      // 主题切换功能
+      // 1. 主题切换功能
       function setupThemeSwitcher() {
         const themeBtns = document.querySelectorAll('.theme-btn');
-        
-        // 检查本地存储和系统偏好
         const savedTheme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        // 确定初始主题
         const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
         document.body.classList.add(initialTheme === 'dark' ? 'dark-theme' : 'light-theme');
-        
-        // 设置活动按钮状态
         themeBtns.forEach(btn => {
           btn.classList.toggle('active', btn.dataset.theme === initialTheme);
         });
-        
-        // 添加按钮点击事件
         themeBtns.forEach(btn => {
           btn.addEventListener('click', () => {
             const selectedTheme = btn.dataset.theme;
-            
-            // 更新body类
             document.body.classList.remove('light-theme', 'dark-theme');
             document.body.classList.add(selectedTheme === 'dark' ? 'dark-theme' : 'light-theme');
-            
-            // 更新按钮状态
             themeBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
-            // 保存到本地存储
             localStorage.setItem('theme', selectedTheme);
           });
         });
       }
 
-      // 新增：自动更新年份功能
+      // 2. 自动更新年份
       function updateCopyrightYear() {
         const startYear = 2022;
         const currentYear = new Date().getFullYear();
         const copyrightElem = document.getElementById('copyrightLink');
         if (copyrightElem) {
-          // 如果当前年份大于起始年份，则显示范围，否则只显示起始年份
           const yearDisplay = currentYear > startYear ? `${startYear}-${currentYear}` : startYear;
           copyrightElem.textContent = `© ${yearDisplay} 蜂巢·隱曜`;
         }
       }
       
-      // 优化后的弹窗固定位置逻辑
+      // 3. 修复弹窗位置 (固定在方格下方)
       function fixTooltipPosition() {
         const tooltip = document.getElementById('tooltip');
-        
         document.addEventListener('mouseover', (e) => {
           if (e.target.classList.contains('statusSquare')) {
             const rect = e.target.getBoundingClientRect();
-            const scrollX = window.scrollX;
-            const scrollY = window.scrollY;
-
-            // 1. 计算初始位置：方格底部下方 10px，并尝试水平居中
-            let targetLeft = rect.left + scrollX + (rect.width / 2);
-            let targetTop = rect.bottom + scrollY + 10;
-
-            // 2. 只有在弹窗内容生成后才能获取其准确宽度，
-            // 故使用 requestAnimationFrame 确保在下一帧渲染时修正偏移
             requestAnimationFrame(() => {
               const tooltipWidth = tooltip.offsetWidth;
-              
-              // 水平居中偏移
-              let finalLeft = targetLeft - (tooltipWidth / 2);
-              
-              // 3. 边界检测：防止超出右边界
+              let finalLeft = (rect.left + window.scrollX + rect.width / 2) - (tooltipWidth / 2);
               const padding = 10;
-              if (finalLeft + tooltipWidth > window.innerWidth + scrollX - padding) {
-                finalLeft = window.innerWidth + scrollX - tooltipWidth - padding;
+              if (finalLeft + tooltipWidth > window.innerWidth + window.scrollX - padding) {
+                finalLeft = window.innerWidth + window.scrollX - tooltipWidth - padding;
               }
-              
-              // 4. 边界检测：防止超出左边界
-              if (finalLeft < scrollX + padding) {
-                finalLeft = scrollX + padding;
-              }
+              if (finalLeft < window.scrollX + padding) finalLeft = window.scrollX + padding;
 
               tooltip.style.left = finalLeft + 'px';
-              tooltip.style.top = targetTop + 'px';
-              // 修正小箭头的偏移，让它始终指向方格
+              tooltip.style.top = (rect.bottom + window.scrollY + 10) + 'px';
+              
               const arrow = document.getElementById('tooltipArrow');
               if (arrow) {
-                const arrowOffset = (rect.left + scrollX + rect.width/2) - finalLeft;
-                arrow.style.left = arrowOffset + 'px';
+                arrow.style.left = ((rect.left + window.scrollX + rect.width/2) - finalLeft) + 'px';
               }
             });
           }
         }, true);
       }
 
+      // 4. 自动翻译动态内容 (无需修改 index.js)
+      function setupAutoTranslation() {
+        const dictionary = {
+          'Fully Operational': '系统运行正常',
+          'Operational': '运行正常',
+          'Degraded Performance': '性能下降',
+          'Partial Outage': '部分故障',
+          'Major Outage': '严重故障',
+          'Maintenance': '维护中',
+          'No data': '暂无数据',
+          'Up': '在线',
+          'Down': '离线'
+        };
+
+        const translateElement = (el) => {
+          const text = el.textContent.trim();
+          if (dictionary[text]) {
+            el.textContent = dictionary[text];
+          }
+        };
+
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+              if (node.nodeType === 1) {
+                // 翻译标题状态
+                if (node.classList.contains('statusHeadline')) translateElement(node);
+                // 查找子元素中的状态
+                node.querySelectorAll('.statusHeadline, #tooltipStatus').forEach(translateElement);
+              }
+            });
+            // 监测弹窗内容变化
+            if (mutation.target.id === 'tooltipStatus') translateElement(mutation.target);
+          });
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+      }
+
       // 初始化
       document.addEventListener('DOMContentLoaded', () => {
         setupThemeSwitcher();
-        updateCopyrightYear(); // 调用年份更新
-        fixTooltipPosition(); // 运行优化后的逻辑
+        updateCopyrightYear();
+        fixTooltipPosition();
+        setupAutoTranslation(); // 启用自动翻译
         genAllReports();
       });
     </script>

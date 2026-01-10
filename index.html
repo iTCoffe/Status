@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="index.css" />
     <style>
-      /* 新增主题切换按钮样式 */
+      /* 主题切换按钮样式 */
       .theme-switcher {
         position: fixed;
         top: 20px;
@@ -18,36 +18,17 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         z-index: 1000;
       }
-      
-      .dark-theme .theme-switcher {
-        background: rgba(0,0,0,0.8);
-      }
-      
+      .dark-theme .theme-switcher { background: rgba(0,0,0,0.8); }
       .theme-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 8px 12px;
-        margin: 0 2px;
-        border-radius: 50%;
-        transition: all 0.3s ease;
-        font-size: 20px;
-        line-height: 1;
+        background: none; border: none; cursor: pointer; padding: 8px 12px;
+        margin: 0 2px; border-radius: 50%; transition: all 0.3s ease;
+        font-size: 20px; line-height: 1;
       }
-      
-      .theme-btn:hover {
-        background-color: rgba(0,0,0,0.1);
-        transform: scale(1.1);
-      }
-      
-      .theme-btn.active {
-        background-color: rgba(0,0,0,0.2);
-      }
+      .theme-btn:hover { background-color: rgba(0,0,0,0.1); transform: scale(1.1); }
+      .theme-btn.active { background-color: rgba(0,0,0,0.2); }
 
-      /* 核心优化：隐藏监控的网址 */
-      .sectionUrl {
-        display: none !important;
-      }
+      /* 弹窗定位修正 */
+      #tooltip { position: absolute; pointer-events: none; z-index: 10000; }
     </style>
     <script src="index.js"></script>
   </head>
@@ -76,16 +57,9 @@
         <div id="tooltipDescription" class="tooltipDescription"></div>
       </div>
       <div id="templates" style="display: none">
-        <div
-          id="statusSquareTemplate"
-          class="statusSquare $color"
-          data-status="$color"
-        ></div>
+        <div id="statusSquareTemplate" class="statusSquare $color" data-status="$color"></div>
         <div id="statusLineTemplate" class="statusLine"></div>
-        <div
-          id="statusStreamContainerTemplate"
-          class="statusStreamContainer"
-        ></div>
+        <div id="statusStreamContainerTemplate" class="statusStreamContainer"></div>
         <div id="statusContainerTemplate" class="statusContainer">
           <div class="statusHeader">
             <h6 class="statusTitle">$title&nbsp;</h6>
@@ -100,16 +74,14 @@
     </div>
 
     <script>
-      // 1. 主题切换功能
+      // 1. 主题切换
       function setupThemeSwitcher() {
         const themeBtns = document.querySelectorAll('.theme-btn');
         const savedTheme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
         document.body.classList.add(initialTheme === 'dark' ? 'dark-theme' : 'light-theme');
-        themeBtns.forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.theme === initialTheme);
-        });
+        themeBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.theme === initialTheme));
         themeBtns.forEach(btn => {
           btn.addEventListener('click', () => {
             const selectedTheme = btn.dataset.theme;
@@ -122,7 +94,7 @@
         });
       }
 
-      // 2. 自动更新年份
+      // 2. 更新版权年份
       function updateCopyrightYear() {
         const startYear = 2022;
         const currentYear = new Date().getFullYear();
@@ -133,7 +105,7 @@
         }
       }
       
-      // 3. 修复弹窗位置 (固定在方格下方居中)
+      // 3. 修复弹窗位置 (固定在方格下方)
       function fixTooltipPosition() {
         const tooltip = document.getElementById('tooltip');
         document.addEventListener('mouseover', (e) => {
@@ -147,21 +119,15 @@
                 finalLeft = window.innerWidth + window.scrollX - tooltipWidth - padding;
               }
               if (finalLeft < window.scrollX + padding) finalLeft = window.scrollX + padding;
-
               tooltip.style.left = finalLeft + 'px';
               tooltip.style.top = (rect.bottom + window.scrollY + 10) + 'px';
-              
-              const arrow = document.getElementById('tooltipArrow');
-              if (arrow) {
-                arrow.style.left = ((rect.left + window.scrollX + rect.width/2) - finalLeft) + 'px';
-              }
             });
           }
         }, true);
       }
 
-      // 4. 自动翻译动态内容
-      function setupAutoTranslation() {
+      // 4. 内容修改器：翻译 + 动态网址伪装
+      function setupContentModifier() {
         const dictionary = {
           'Fully Operational': '系统运行正常',
           'Operational': '运行正常',
@@ -169,15 +135,52 @@
           'Partial Outage': '部分故障',
           'Major Outage': '严重故障',
           'Maintenance': '维护中',
-          'No data': '暂无数据',
           'Up': '在线',
           'Down': '离线'
         };
 
-        const translateElement = (el) => {
-          const text = el.textContent.trim();
-          if (dictionary[text]) {
-            el.textContent = dictionary[text];
+        // 【网址伪装配置表】
+        // 键名：你在 urls.cfg 中定义的显示标题（Title）
+        // 键值：你想要显示的伪装网址
+        const urlMap = {
+          'i計劃通行·樂玩公社㊙️': 'https://vlink.cc/CNiao',
+          '“閒”是生活的標點': 'https://loong.ifanr.pp.ua',
+          'ADS拦截规则·CHINESE': 'https://adrules.ifanr.pp.ua',
+          'GKD規則·CHINESE': 'https://icloud.ifanr.pp.ua/GKD/Guīzé.stor',
+          'iTV·實時直播集萃🌟': 'https://itv.ifanr.pp.ua',
+          '臨時信箱·便捷隨心': 'https://tempmailpro.org',
+          'Docker·離線映像下載器': 'https://docker.registry.cyou',
+          'GitHub 文件加速·公益服務': 'https://gh.registry.cyou',
+          '簡約·鏈結縮短服務': 'https://url.ifanr.pp.ua',
+          '跟着教员走遍中国·毛主席足迹地图': 'https://mmap.ifanr.pp.ua',
+          '無意義·摸魚掃碼': 'https://loong.ifanr.pp.ua/genact',
+          '紅色警戒·全平台即時戰': 'https://ra2web.com',
+          '寶可夢·自走棋': 'https://pokemon-auto-chess.com',
+          'Blogspot·博客📛': 'https://5iclub.blogspot.com',
+          '服務監控🛎': 'https://status.ifanr.pp.ua' // 没匹配到时的默认地址
+        };
+
+        const modifyElement = (container) => {
+          // A. 翻译状态文本
+          container.querySelectorAll('.statusHeadline, #tooltipStatus').forEach(el => {
+            const text = el.textContent.trim();
+            if (dictionary[text]) el.textContent = dictionary[text];
+          });
+
+          // B. 伪装网址逻辑
+          const statusContainer = container.closest('.statusContainer');
+          if (statusContainer) {
+            const titleEl = statusContainer.querySelector('.statusTitle');
+            const urlLink = statusContainer.querySelector('.sectionUrl a');
+            
+            if (titleEl && urlLink) {
+              const serviceTitle = titleEl.textContent.trim();
+              // 根据标题查找伪装网址，找不到则用 Default
+              const maskedUrl = urlMap[serviceTitle] || urlMap['Default'];
+              
+              urlLink.textContent = maskedUrl;
+              urlLink.href = "javascript:void(0);"; // 禁止跳转保护真实地址
+            }
           }
         };
 
@@ -185,15 +188,20 @@
           mutations.forEach((mutation) => {
             mutation.addedNodes.forEach((node) => {
               if (node.nodeType === 1) {
-                if (node.classList.contains('statusHeadline')) translateElement(node);
-                node.querySelectorAll('.statusHeadline, #tooltipStatus').forEach(translateElement);
+                // 如果是新添加的状态块，执行修改
+                if (node.classList.contains('statusContainer')) modifyElement(node);
+                node.querySelectorAll('.statusContainer').forEach(modifyElement);
               }
             });
-            if (mutation.target.id === 'tooltipStatus') translateElement(mutation.target);
+            // 处理弹窗内的翻译
+            if (mutation.target.id === 'tooltipStatus') {
+              const text = mutation.target.textContent.trim();
+              if (dictionary[text]) mutation.target.textContent = dictionary[text];
+            }
           });
         });
 
-        observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+        observer.observe(document.body, { childList: true, subtree: true });
       }
 
       // 初始化
@@ -201,7 +209,7 @@
         setupThemeSwitcher();
         updateCopyrightYear();
         fixTooltipPosition();
-        setupAutoTranslation();
+        setupContentModifier();
         genAllReports();
       });
     </script>

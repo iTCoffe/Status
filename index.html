@@ -43,13 +43,6 @@
       .theme-btn.active {
         background-color: rgba(0,0,0,0.2);
       }
-
-      /* 修复：确保弹窗不会遮挡鼠标指针，防止闪烁 */
-      #tooltip {
-        position: absolute;
-        pointer-events: none; /* 核心：允许鼠标事件穿透弹窗 */
-        z-index: 10000;
-      }
     </style>
     <script src="index.js"></script>
   </head>
@@ -105,63 +98,68 @@
       // 主题切换功能
       function setupThemeSwitcher() {
         const themeBtns = document.querySelectorAll('.theme-btn');
+        
+        // 检查本地存储和系统偏好
         const savedTheme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // 确定初始主题
         const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
         document.body.classList.add(initialTheme === 'dark' ? 'dark-theme' : 'light-theme');
+        
+        // 设置活动按钮状态
         themeBtns.forEach(btn => {
           btn.classList.toggle('active', btn.dataset.theme === initialTheme);
         });
+        
+        // 添加按钮点击事件
         themeBtns.forEach(btn => {
           btn.addEventListener('click', () => {
             const selectedTheme = btn.dataset.theme;
+            
+            // 更新body类
             document.body.classList.remove('light-theme', 'dark-theme');
             document.body.classList.add(selectedTheme === 'dark' ? 'dark-theme' : 'light-theme');
+            
+            // 更新按钮状态
             themeBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            
+            // 保存到本地存储
             localStorage.setItem('theme', selectedTheme);
           });
         });
       }
 
-      // 自动更新年份功能
+      // 新增：自动更新年份功能
       function updateCopyrightYear() {
         const startYear = 2022;
         const currentYear = new Date().getFullYear();
         const copyrightElem = document.getElementById('copyrightLink');
         if (copyrightElem) {
+          // 如果当前年份大于起始年份，则显示范围，否则只显示起始年份
           const yearDisplay = currentYear > startYear ? `${startYear}-${currentYear}` : startYear;
           copyrightElem.textContent = `© ${yearDisplay} 蜂巢·隱曜`;
         }
       }
-
-      // 核心修复：弹窗实时跟踪鼠标位置
-      function setupTooltipFollow() {
+      
+      // 修復：彈窗位置跟隨鼠標
+      function fixTooltipPosition() {
         const tooltip = document.getElementById('tooltip');
-        
+        // 僅添加鼠標移動監聽
         document.addEventListener('mousemove', (e) => {
-          // 仅当弹窗是显示状态时执行定位逻辑
           if (tooltip.style.opacity > 0) {
-            const gap = 15; // 距离鼠标的间距
-            let posX = e.pageX + gap;
-            let posY = e.pageY + gap;
-
-            // 边缘检测：防止弹窗超出右侧屏幕
-            if (posX + tooltip.offsetWidth > window.innerWidth) {
-              posX = e.pageX - tooltip.offsetWidth - gap;
-            }
-
-            tooltip.style.left = posX + 'px';
-            tooltip.style.top = posY + 'px';
+            tooltip.style.left = (e.pageX + 10) + 'px';
+            tooltip.style.top = (e.pageY + 10) + 'px';
           }
         });
       }
-      
+
       // 初始化
       document.addEventListener('DOMContentLoaded', () => {
         setupThemeSwitcher();
-        updateCopyrightYear();
-        setupTooltipFollow(); // 运行弹窗修复
+        updateCopyrightYear(); // 调用年份更新
+        fixTooltipPosition(); // 呼叫修復函數
         genAllReports();
       });
     </script>

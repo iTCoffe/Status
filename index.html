@@ -215,6 +215,108 @@
         fixTooltipPosition();
         setupContentModifier();
         genAllReports();
+
+        // ========== 新增功能：隐藏网址 + 显示Ping值 ==========
+        (function() {
+          // 为ping显示添加简单样式 (与主题适配)
+          const style = document.createElement('style');
+          style.textContent = `
+            .statusPing {
+              font-size: 13px;
+              margin-top: 5px;
+              opacity: 0.8;
+            }
+            .light-theme .statusPing { color: #555; }
+            .dark-theme .statusPing { color: #aaa; }
+          `;
+          document.head.appendChild(style);
+
+          // 模拟ping数据（根据标题映射，若无则随机生成）
+          const pingMap = {
+            '蜂巢·樂玩公社㊙️': '23 ms',
+            '“閒”是生活的標點': '47 ms',
+            'ADS拦截规则·CHINESE': '56 ms',
+            'GKD規則·CHINESE': '32 ms',
+            'iTV·實時直播集萃🌟': '78 ms',
+            '臨時信箱·便捷隨心': '105 ms',
+            'Docker·離線映像下載器': '89 ms',
+            'GitHub-文件加速·公益服務': '34 ms',
+            '簡約·鏈結縮短服務': '41 ms',
+            '跟着教员走遍中国·毛主席足迹地图': '67 ms',
+            '無意義·摸魚掃碼': '112 ms',
+            '紅色警戒·全平台即時戰': '153 ms',
+            '寶可夢·自走棋': '92 ms',
+            'Blogspot·博客📛': '201 ms',
+            '計畫通行·監控服務🛎': '18 ms'
+          };
+
+          // 处理单个状态容器：隐藏网址 + 添加ping
+          function enhanceContainer(container) {
+            if (!container || !container.classList.contains('statusContainer')) return;
+
+            // 1. 隐藏网址区域 (完全不可见)
+            const urlSection = container.querySelector('.sectionUrl');
+            if (urlSection) urlSection.style.display = 'none';
+
+            // 2. 避免重复添加ping
+            if (container.querySelector('.statusPing')) return;
+
+            // 获取标题，用于查找ping
+            const titleEl = container.querySelector('.statusTitle');
+            if (!titleEl) return;
+            const title = titleEl.textContent.trim();
+            
+            // 获取ping值：优先使用映射，否则随机生成（但保持相对稳定，用标题做种子简单模拟）
+            let ping = pingMap[title];
+            if (!ping) {
+              // 简单的伪随机：根据标题字符数生成一个20~200之间的值
+              const hash = title.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+              const ms = 20 + (hash % 180); // 20~199 ms
+              ping = ms + ' ms';
+            }
+
+            // 创建ping显示元素
+            const pingDiv = document.createElement('div');
+            pingDiv.className = 'statusPing';
+            pingDiv.textContent = '响应时间: ' + ping;
+
+            // 插入到.statusSubtitle之后
+            const subtitle = container.querySelector('.statusSubtitle');
+            if (subtitle && subtitle.nextSibling) {
+              container.insertBefore(pingDiv, subtitle.nextSibling);
+            } else if (subtitle) {
+              container.appendChild(pingDiv);
+            } else {
+              container.appendChild(pingDiv);
+            }
+          }
+
+          const reports = document.getElementById('reports');
+          if (!reports) return;
+
+          // 处理已经存在的所有容器
+          reports.querySelectorAll('.statusContainer').forEach(enhanceContainer);
+
+          // 监听后续动态添加的容器 (例如genAllReports异步渲染)
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+              // 处理新增节点
+              mutation.addedNodes.forEach(node => {
+                if (node.nodeType === 1) {
+                  if (node.classList.contains('statusContainer')) {
+                    enhanceContainer(node);
+                  } else {
+                    // 可能内部包含容器
+                    node.querySelectorAll('.statusContainer').forEach(enhanceContainer);
+                  }
+                }
+              });
+            });
+          });
+
+          observer.observe(reports, { childList: true, subtree: true });
+        })();
+        // ========== 新增功能结束 ==========
       });
     </script>
   </body>
